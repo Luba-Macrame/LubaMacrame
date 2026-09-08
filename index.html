@@ -1,1175 +1,128 @@
-﻿
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Luba Macramé - Artesanía</title>
-    <!-- Carga de Fuentes Elegantes desde Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Cinzel:wght@500;700&family=Inter:wght@300;400;600&family=Lora:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda Macramé</title>
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root {
-            --bg-color: #fcfaf7;
-            --card-bg: #ffffff;
-            --primary: #8c6d58; /* Terracota suave */
-            --primary-dark: #6e5341;
-            --text-main: #2b2b2b;
-            --text-light: #666666;
-            --accent: #d98268;
-            --border: #ece6de;
-            --font-title: 'Playfair Display', serif;
-            --font-body: 'Plus Jakarta Sans', sans-serif;
-            --header-bg-img: url('https://images.unsplash.com/photo-1528458909336-e7a0adfed0a5?auto=format&fit=crop&w=1600&q=80');
-            --body-bg-img: none;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            background-image: var(--body-bg-img);
-            background-size: cover;
-            background-attachment: fixed;
-            background-position: center;
-            color: var(--text-main);
-            font-family: var(--font-body);
-            line-height: 1.5;
-            overflow-x: hidden;
-        }
-
-        /* --- BARRA SUPERIOR DE ANUNCIOS --- */
-        .top-bar {
-            background-color: #2b2b2b;
-            color: #ffffff;
-            text-align: center;
-            padding: 7px 12px;
-            font-size: clamp(0.7rem, 2vw, 0.8rem);
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-        }
-
-        /* --- CABECERA ADAPTATIVA (HERO) CON LOGO --- */
-        header {
-            position: relative;
-            background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), var(--header-bg-img);
-            background-size: cover;
-            background-position: center;
-            color: #ffffff;
-            text-align: center;
-            padding: clamp(35px, 8vw, 70px) 15px;
-            margin-bottom: clamp(20px, 4vw, 40px);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* LOGO CON RESPONSIVIDAD INTELIGENTE (HASTA 800PX) */
-        .brand-logo-container {
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-        }
-
-        .brand-logo {
-            width: 220px; /* Dinámico por JS */
-            height: auto;
-            max-width: 85vw; /* Impide que desborde en móviles aunque el slider sea 800px */
-            object-fit: contain;
-            transition: transform 0.3s, width 0.2s ease;
-            filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.4));
-        }
-
-        .brand-logo:hover {
-            transform: scale(1.02);
-        }
-
-        header h1 {
-            font-family: var(--font-title);
-            font-size: clamp(1.8rem, 6vw, 3.2rem);
-            font-weight: 500;
-            margin-bottom: 8px;
-            line-height: 1.15;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-
-        header p {
-            font-size: clamp(0.9rem, 2.8vw, 1.15rem);
-            max-width: 650px;
-            margin: 0 auto;
-            font-weight: 300;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
-            padding: 0 10px;
-        }
-
-        /* --- BOTÓN FLOTANTE EDICIÓN --- */
-        .btn-admin-toggle {
-            position: fixed;
-            bottom: 16px;
-            right: 16px;
-            background: #2b2b2b;
-            color: #ffffff;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
-            z-index: 1000;
-            transition: all 0.3s;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-admin-toggle:hover {
-            background: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        /* --- PANEL DE ADMINISTRACIÓN --- */
-        #admin-panel {
-            display: none;
-            background: #ffffff;
-            padding: clamp(15px, 4vw, 30px);
-            max-width: 900px;
-            margin: 15px auto 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            border: 1px solid var(--border);
-            width: 92%;
-        }
-
-        #admin-panel.active {
-            display: block;
-        }
-
-        #admin-panel h2 {
-            font-family: var(--font-title);
-            color: var(--primary);
-            margin-bottom: 18px;
-            font-size: clamp(1.3rem, 4vw, 1.8rem);
-        }
-
-        .admin-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-        }
-
-        .admin-section {
-            background: #fdfbf7;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-        }
-
-        .admin-section h3 {
-            font-size: 1rem;
-            margin-bottom: 12px;
-            color: var(--primary-dark);
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 6px;
-        }
-
-        .form-group {
-            margin-bottom: 12px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 4px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            padding: 8px 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-family: var(--font-body);
-            font-size: 0.85rem;
-        }
-
-        .range-slider-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .range-slider-container input[type="range"] {
-            flex-grow: 1;
-            cursor: pointer;
-        }
-
-        .range-value {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--primary);
-            min-width: 45px;
-        }
-
-        .btn-submit {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 9px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.82rem;
-            font-weight: 500;
-            width: 100%;
-            transition: background 0.3s;
-        }
-
-        .btn-submit:hover {
-            background: var(--primary-dark);
-        }
-
-        /* GESTIÓN DE CATEGORÍAS */
-        .category-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-
-        .category-item input {
-            flex-grow: 1;
-            padding: 6px 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        .btn-cat-del {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        /* --- CATEGORÍAS / FILTROS SLIDER EN MÓVIL --- */
-        .categories-wrapper {
-            width: 100%;
-            overflow-x: auto;
-            white-space: nowrap;
-            margin-bottom: clamp(20px, 4vw, 35px);
-            padding: 0 15px 5px;
-            scrollbar-width: none;
-        }
-
-        .categories-wrapper::-webkit-scrollbar {
-            display: none;
-        }
-
-        .categories {
-            display: inline-flex;
-            justify-content: center;
-            gap: clamp(10px, 3vw, 20px);
-            min-width: 100%;
-        }
-
-        .category-btn {
-            background: none;
-            border: none;
-            font-size: clamp(0.85rem, 2.5vw, 0.95rem);
-            padding: 6px 14px;
-            cursor: pointer;
-            color: var(--text-light);
-            border-bottom: 2px solid transparent;
-            transition: all 0.3s;
-            font-family: var(--font-body);
-            letter-spacing: 0.3px;
-            flex-shrink: 0;
-        }
-
-        .category-btn.active, .category-btn:hover {
-            color: var(--primary);
-            border-bottom: 2px solid var(--primary);
-            font-weight: 600;
-        }
-
-        /* --- CATÁLOGO DE PRODUCTOS RESPONSIVO --- */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 15px 60px;
-        }
-
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: clamp(15px, 3vw, 30px);
-        }
-
-        .product-card {
-            background: var(--card-bg);
-            border-radius: 8px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            border: 1px solid var(--border);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .product-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-        }
-
-        .img-container {
-            width: 100%;
-            height: clamp(230px, 50vw, 320px);
-            overflow: hidden;
-            background-color: #f4f0eb;
-        }
-
-        .product-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s;
-        }
-
-        .product-card:hover .product-img {
-            transform: scale(1.04);
-        }
-
-        .product-info {
-            padding: clamp(14px, 3.5vw, 20px);
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-        }
-
-        .product-category {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            color: #999;
-            letter-spacing: 1.2px;
-            margin-bottom: 6px;
-        }
-
-        .product-title {
-            font-family: var(--font-title);
-            font-size: clamp(1.1rem, 3.5vw, 1.3rem);
-            margin-bottom: 8px;
-            color: var(--text-main);
-            font-weight: 500;
-            line-height: 1.25;
-        }
-
-        .product-price {
-            font-size: clamp(1rem, 3vw, 1.15rem);
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 14px;
-        }
-
-        .btn-contact {
-            margin-top: auto;
-            display: inline-block;
-            background: transparent;
-            color: var(--primary);
-            border: 1px solid var(--primary);
-            padding: 9px 15px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .btn-contact:hover, .btn-contact:active {
-            background: var(--primary);
-            color: #ffffff;
-        }
-
-        .btn-delete {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(220, 53, 69, 0.9);
-            color: white;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: none;
-            font-weight: bold;
-            z-index: 10;
-        }
-
-        .admin-mode .btn-delete {
-            display: block;
-        }
-
-        footer {
-            text-align: center;
-            padding: 30px 15px;
-            background: #ffffff;
-            border-top: 1px solid var(--border);
-            font-size: 0.8rem;
-            color: #777;
-        }
-
-        footer a {
-            color: var(--primary);
-            text-decoration: none;
-            margin: 0 8px;
-        }
-
-        footer a:hover {
-            text-decoration: underline;
-        }
-
-        .footer-links {
-            margin-top: 10px;
-        }
-
-        /* --- COOKIES & BANNERS --- */
-        #cookie-banner {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #2b2b2b;
-            color: #fff;
-            padding: 15px 20px;
-            display: none;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 9999;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
-            font-size: 0.85rem;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        #cookie-banner button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        #cookie-banner button:hover {
-            background: var(--primary-dark);
-        }
-
-        /* --- MODALES LEGALES --- */
-        .modal-legal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.6);
-            z-index: 10000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .modal-legal-content {
-            background: #fff;
-            max-width: 700px;
-            width: 100%;
-            max-height: 80vh;
-            overflow-y: auto;
-            padding: 25px;
-            border-radius: 8px;
-            position: relative;
-            line-height: 1.6;
-            font-size: 0.9rem;
-        }
-
-        .modal-legal-content h2 {
-            margin-bottom: 15px;
-            color: var(--primary);
-            font-family: var(--font-title);
-        }
-
-        .modal-legal-content h3 {
-            margin: 15px 0 5px;
-            font-size: 1rem;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            border: none;
-            background: none;
-            color: #888;
-        }
-
-        @media (max-width: 580px) {
-            .products-grid {
-                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            }
-
-            .product-info {
-                padding: 12px 10px;
-            }
-
-            .btn-contact {
-                padding: 8px 10px;
-                font-size: 0.7rem;
-            }
-
-            .categories {
-                justify-content: flex-start;
-            }
-        }
+        :root { --primary: #8b5cf6; --bg: #f9fafb; --card: #ffffff; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #333; }
+        header { text-align: center; margin-bottom: 30px; }
+        h1 { margin: 0; color: #1f2937; }
+        p { color: #6b7280; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; }
+        .card { background: var(--card); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); padding: 15px; }
+        .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; }
+        .price { font-weight: bold; color: var(--primary); font-size: 1.2rem; }
+        .admin-panel { max-width: 600px; margin: 0 auto 40px auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; }
+        input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        button { background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; }
+        button:hover { opacity: 0.9; }
+        .delete-btn { background: #ef4444; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <!-- BARRA DE AVISOS -->
-    <div class="top-bar" id="top-bar-text">✨ Piezas artesanales hechas a mano con fibras 100% naturales</div>
-
-    <!-- ENCABEZADO PRINCIPAL (HERO) CON LOGO EN BASE64 -->
-    <header id="main-header">
-        <div class="brand-logo-container">
-            <img id="site-logo" class="brand-logo" src="" alt="Luba Macramé Artesanía">
-        </div>
-        <h1 id="site-title">Luba Macramé</h1>
-        <p id="site-subtitle">Artesanía textil hecha a mano</p>
+    <header>
+        <h1 id="site-title">Tú Tienda de Macramé</h1>
+        <p id="site-subtitle">NUDO A NUDO, TEJEMOS HISTORIAS PARA TI</p>
     </header>
 
-    <!-- BOTÓN FLOTANTE MODO EDICIÓN -->
-    <button class="btn-admin-toggle" onclick="toggleAdmin()">⚙️ <span>Modificar Web</span></button>
-
-    <!-- PANEL DE ADMINISTRACIÓN / EDICIÓN COMPLETO -->
-    <section id="admin-panel">
-        <h2>Panel de Personalización</h2>
-        
-        <div class="admin-grid">
-            <!-- 1. EDITAR TEXTOS Y ANUNCIO -->
-            <div class="admin-section">
-                <h3>1. Textos de la Web</h3>
-                <div class="form-group">
-                    <label>Título Principal:</label>
-                    <input type="text" id="input-title" placeholder="Ej. Luba Macramé">
-                </div>
-                <div class="form-group">
-                    <label>Subtítulo / Eslogan:</label>
-                    <input type="text" id="input-subtitle" placeholder="Ej. Artesanía textil hecha a mano">
-                </div>
-                <div class="form-group">
-                    <label>Barra de Anuncios (Arriba):</label>
-                    <input type="text" id="input-topbar" placeholder="Ej. Envíos gratis en compras superiores a 50€">
-                </div>
-                <button class="btn-submit" onclick="updateTexts()">Guardar Textos</button>
+    <!-- Panel para agregar productos directamente a Supabase -->
+    <div class="admin-panel">
+        <h3>➕ Añadir Nuevo Producto (Nube)</h3>
+        <form id="product-form">
+            <div class="form-group">
+                <label>Nombre del producto</label>
+                <input type="text" id="p-title" required placeholder="Ej. Tapiz Hoja">
             </div>
-
-            <!-- 2. EDITAR TIPOGRAFÍAS -->
-            <div class="admin-section">
-                <h3>2. Estilos de Letra (Tipografía)</h3>
-                <div class="form-group">
-                    <label>Fuente para Títulos y Encabezados:</label>
-                    <select id="select-font-title">
-                        <option value="'Playfair Display', serif">Playfair Display (Elegante & Clásica)</option>
-                        <option value="'Lora', serif">Lora (Orgánica & Editorial)</option>
-                        <option value="'Cinzel', serif">Cinzel (Vintage & Sofisticada)</option>
-                        <option value="'Caveat', cursive">Caveat (Manuscrita Artesanal)</option>
-                        <option value="'Montserrat', sans-serif">Montserrat (Moderna & Limpia)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Fuente para Texto General y Botones:</label>
-                    <select id="select-font-body">
-                        <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta Sans (Moderna & Equilibrada)</option>
-                        <option value="'Inter', sans-serif">Inter (Mínima & Neutra)</option>
-                        <option value="'Montserrat', sans-serif">Montserrat (Geométrica)</option>
-                        <option value="'Lora', serif">Lora (Estilo Libro Serif)</option>
-                    </select>
-                </div>
-                <button class="btn-submit" onclick="saveFonts()">Guardar Tipografías</button>
+            <div class="form-group">
+                <label>Precio (€)</label>
+                <input type="number" step="0.01" id="p-price" required placeholder="25.00">
             </div>
-
-            <!-- 3. EDITAR LOGO Y FONDOS -->
-            <div class="admin-section">
-                <h3>3. Logo e Imágenes</h3>
-                <div class="form-group">
-                    <label>Logo de la Marca:</label>
-                    <input type="file" id="input-logo" accept="image/*">
-                </div>
-                <div class="form-group">
-                    <label>Tamaño del Logo (Ancho max 800px):</label>
-                    <div class="range-slider-container">
-                        <input type="range" id="input-logo-size" min="30" max="800" value="220" oninput="changeLogoSize(this.value)">
-                        <span id="logo-size-val" class="range-value">220px</span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Imagen del Encabezado (Header):</label>
-                    <input type="file" id="input-header-bg" accept="image/*">
-                </div>
-                <div class="form-group">
-                    <label>Imagen de Fondo General (Opcional):</label>
-                    <input type="file" id="input-body-bg" accept="image/*">
-                </div>
-                <button class="btn-submit" onclick="updateImages()">Aplicar Imágenes y Logo</button>
-                <button class="btn-submit" onclick="resetBodyBg()" style="background:#999; margin-top: 8px;">Quitar Fondo General</button>
+            <div class="form-group">
+                <label>URL de la imagen (Directa de ImgBB)</label>
+                <input type="url" id="p-image" required placeholder="https://i.ibb.co/xxxx/foto.png">
             </div>
-
-            <!-- 4. EDITAR CATEGORÍAS / SECCIONES -->
-            <div class="admin-section">
-                <h3>4. Editar Secciones / Categorías</h3>
-                <div id="categories-admin-list">
-                    <!-- Dinámico por JS -->
-                </div>
-                <button class="btn-submit" onclick="addCategoryField()" style="background:#6c757d; margin-bottom: 8px;">+ Añadir Otra Categoría</button>
-                <button class="btn-submit" onclick="saveCategories()">Guardar Cambios de Categorías</button>
-            </div>
-
-            <!-- 5. DATOS LEGALES Y EMPRESA -->
-            <div class="admin-section" style="grid-column: 1 / -1;">
-                <h3>5. Datos Legales y de Empresa</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
-                    <div class="form-group">
-                        <label>Nombre Fiscal/Empresa:</label>
-                        <input type="text" id="legal-company-name" placeholder="Ej. Luba Macramé Artesanía S.L.">
-                    </div>
-                    <div class="form-group">
-                        <label>NIF / CIF / DNI:</label>
-                        <input type="text" id="legal-cif" placeholder="Ej. B12345678">
-                    </div>
-                    <div class="form-group">
-                        <label>Email de Contacto:</label>
-                        <input type="email" id="legal-email" placeholder="contacto@lubamacrame.com">
-                    </div>
-                    <div class="form-group">
-                        <label>Dirección Fiscal:</label>
-                        <input type="text" id="legal-address" placeholder="Ej. Calle Arte 12, Madrid">
-                    </div>
-                </div>
-                <button class="btn-submit" onclick="saveLegalData()" style="margin-top: 8px;">Guardar Datos Legales</button>
-            </div>
-
-            <!-- 6. AÑADIR NUEVO PRODUCTO -->
-            <div class="admin-section" style="grid-column: 1 / -1;">
-                <h3>6. Subir Nuevo Artículo</h3>
-                <form id="add-product-form" onsubmit="addProduct(event)">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
-                        <div class="form-group">
-                            <label>Nombre del Producto:</label>
-                            <input type="text" id="p-title" required placeholder="Ej. Tapiz Ateneo">
-                        </div>
-                        <div class="form-group">
-                            <label>Categoría / Sección:</label>
-                            <select id="p-category" required>
-                                <!-- Opciones cargadas dinámicamente -->
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Precio (€):</label>
-                            <input type="number" step="0.01" id="p-price" required placeholder="35.90">
-                        </div>
-                        <div class="form-group">
-                            <label>Foto del Producto:</label>
-                            <input type="file" id="p-image" accept="image/*" required>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn-submit" style="margin-top: 8px;">Publicar Producto</button>
-                </form>
-            </div>
-        </div>
-    </section>
-
-    <!-- NAVEGACIÓN Y FILTROS DESLIZABLES EN MÓVIL -->
-    <div class="categories-wrapper">
-        <nav class="categories" id="main-category-nav">
-            <!-- Dinámico por JS -->
-        </nav>
+            <button type="submit">Guardar en la Nube</button>
+        </form>
     </div>
 
-    <!-- SECCIÓN DE PRODUCTOS -->
-    <main class="container">
-        <div class="products-grid" id="products-container">
-            <!-- Cargado por JavaScript -->
-        </div>
-    </main>
-
-    <!-- BANNER DE COOKIES -->
-    <div id="cookie-banner">
-        <span>Utilizamos cookies propias y de terceros para mejorar tu experiencia. Al continuar navegando, aceptas nuestra <a href="#" onclick="openModal('privacy-modal'); return false;" style="color: #d98268; text-decoration: underline;">Política de Privacidad</a>.</span>
-        <button onclick="acceptCookies()">Aceptar todas</button>
+    <!-- Catálogo de productos -->
+    <div class="grid" id="products-container">
+        <p>Cargando productos desde Supabase...</p>
     </div>
-
-    <!-- MODAL POLÍTICA DE PRIVACIDAD -->
-    <div id="privacy-modal" class="modal-legal">
-        <div class="modal-legal-content">
-            <button class="close-modal" onclick="closeModal('privacy-modal')">&times;</button>
-            <h2>Política de Privacidad</h2>
-            <p><strong>Responsable del tratamiento:</strong> <span class="legal-name-txt">--</span></p>
-            <p><strong>NIF/CIF:</strong> <span class="legal-cif-txt">--</span></p>
-            <p><strong>Dirección:</strong> <span class="legal-address-txt">--</span></p>
-            <p><strong>Email:</strong> <span class="legal-email-txt">--</span></p>
-            
-            <h3>1. Finalidad del Tratamiento de Datos</h3>
-            <p>En nuestra tienda tratamos la información que nos facilitan las personas interesadas con el fin de gestionar la atención de consultas, solicitudes de información y pedidos tramitados mediante el enlace directo a WhatsApp o vía correo electrónico.</p>
-
-            <h3>2. Conservación de Datos</h3>
-            <p>Los datos se conservarán mientras se mantenga la relación comercial o durante los años necesarios para cumplir con las obligaciones legales correspondientes.</p>
-
-            <h3>3. Legitimación</h3>
-            <p>El tratamiento de sus datos está basado en el consentimiento del interesado al ponerse en contacto con nosotros.</p>
-
-            <h3>4. Derechos de los Usuarios</h3>
-            <p>Cualquier persona tiene derecho a obtener confirmación sobre si estamos tratando datos personales que les conciernan. Los interesados tienen derecho a acceder a sus datos personales, solicitar la rectificación de los datos inexactos o la supresión de los mismos dirigiéndose a nuestro email de contacto.</p>
-        </div>
-    </div>
-
-    <!-- MODAL TÉRMINOS Y CONDICIONES -->
-    <div id="terms-modal" class="modal-legal">
-        <div class="modal-legal-content">
-            <button class="close-modal" onclick="closeModal('terms-modal')">&times;</button>
-            <h2>Aviso Legal y Condiciones</h2>
-            <p>En cumplimiento con el deber de información, se reflejan los siguientes datos de la empresa propietaria:</p>
-            <p><strong>Titular:</strong> <span class="legal-name-txt">--</span></p>
-            <p><strong>NIF/CIF:</strong> <span class="legal-cif-txt">--</span></p>
-            <p><strong>Contacto:</strong> <span class="legal-email-txt">--</span></p>
-            
-            <h3>Uso del Sitio Web</h3>
-            <p>El acceso a la web le atribuye la condición de Usuario e implica la aceptación total de las condiciones expuestas. Todos los productos mostrados están hechos de forma artesanal y pueden presentar leves diferencias respecto a las fotos, rasgo propio de los productos totalmente hechos a mano.</p>
-        </div>
-    </div>
-
-    <footer>
-        <p>&copy; <span id="year"></span> <span id="footer-title">Luba Macramé</span>. Inspirado en el arte textil sostenible.</p>
-        <div class="footer-links">
-            <a href="#" onclick="openModal('privacy-modal'); return false;">Política de Privacidad</a> | 
-            <a href="#" onclick="openModal('terms-modal'); return false;">Aviso Legal</a>
-        </div>
-    </footer>
 
     <script>
-        // --- LOGO Y FONDO EN BASE64 INCRUSTADOS PERMANENTEMENTE ---
-        const EMBEDDED_LOGO_BASE64 = "data:image/png;base64,iVBORw0KGgoAAAANSU5AGX11Y3A3S0I4dHRmNTk1YTllYTI3NzhkYmVlM2JmMzc5YTM5ZTFkZTA1NGFmMmIxOGI2NTgyZDIyMTAzODExY2RiNzY4MmE0MmQ2YTUwYTRlZmY2NTI3YWU3OGE3Yzc4Mzg4OTJhZDNmMDRmOGQyMmUxNDcyNzkzOTY3MTljZTI0MGQ1NmYxYWFmY2ZkYmUzMDkxNGMyYTQxNjJhNTJkMzg0MGQ5NGFhZTk0ZGEyNTk1ZmE2YTliOGRhNTBiZTA4MWI2MTkyODQ3NGU2YWQ1NDk1ODgxNWVjYjc2NWVkN2JhN2I1MzJiNDAwN2JmYjdlZjQxOGZjOGM0NmRkMzJkZWVlZWU2NWVlZWU=";
-        
-        const EMBEDDED_HEADER_BG_BASE64 = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAHgA8MBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAAG8QEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwD//////////////////////////////////////////////////////////////////////////////////////D//////////////////////////////////////////////////////////////////////////////////////E";
+        // Inicialización de Supabase con tus credenciales
+        const SUPABASE_URL = 'https://vgxfitexnkvjijkamdcg.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_MtWly2tb9B_XdQrIWpau6g_VR-F-bS_';
+        const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // --- TELÉFONO DE WHATSAPP ---
-        const TEL_WHATSAPP = "34600000000"; 
+        // Elementos del DOM
+        const container = document.getElementById('products-container');
+        const form = document.getElementById('product-form');
 
-        // --- VALORES INICIALES PREDETERMINADOS ---
-        const defaultCategories = ["Decoración", "Accesorios", "Bolsos", "Kits y Materiales"];
-        
-        const defaultProducts = [
-            { id: 1, title: "Tapiz Minimalista Ateneo", category: "Decoración", price: "35.90", image: "https://images.unsplash.com/photo-1528458909336-e7a0adfed0a5?auto=format&fit=crop&w=600&q=80" },
-            { id: 2, title: "Bolso Estilo Leopardo", category: "Bolsos", price: "27.60", image: "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=600&q=80" },
-            { id: 3, title: "Pendientes Hoja Beige", category: "Accesorios", price: "14.00", image: "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&w=600&q=80" }
-        ];
-
-        // --- CARGAR DATOS DESDE LOCALSTORAGE O VALORES FIJADOS ---
-        let categories = JSON.parse(localStorage.getItem('macrame_v3_categories')) || defaultCategories;
-        let products = JSON.parse(localStorage.getItem('macrame_v2_products')) || defaultProducts;
-        let siteTitle = localStorage.getItem('macrame_v2_title') || "Luba Macramé";
-        let siteSubtitle = localStorage.getItem('macrame_v2_subtitle') || "Artesanía textil hecha a mano";
-        let topbarText = localStorage.getItem('macrame_v2_topbar') || "✨ Piezas artesanales hechas a mano con fibras 100% naturales";
-        let brandLogoImg = localStorage.getItem('macrame_v2_logo') || EMBEDDED_LOGO_BASE64;
-        let logoSize = localStorage.getItem('macrame_v3_logo_size') || '220';
-        let headerBgImg = localStorage.getItem('macrame_v2_header_bg') || EMBEDDED_HEADER_BG_BASE64;
-        let bodyBgImg = localStorage.getItem('macrame_v2_body_bg') || '';
-
-        // Datos Legales
-        let legalName = localStorage.getItem('macrame_v1_legal_name') || "Luba Macramé Artesanía";
-        let legalCif = localStorage.getItem('macrame_v1_legal_cif') || "B00000000";
-        let legalEmail = localStorage.getItem('macrame_v1_legal_email') || "contacto@lubamacrame.com";
-        let legalAddress = localStorage.getItem('macrame_v1_legal_address') || "Calle Principal 1, Ciudad";
-
-        // Fuentes guardadas
-        let fontTitle = localStorage.getItem('macrame_v4_font_title') || "'Playfair Display', serif";
-        let fontBody = localStorage.getItem('macrame_v4_font_body') || "'Plus Jakarta Sans', sans-serif";
-
-        document.getElementById('year').textContent = new Date().getFullYear();
-
-        // --- RENDERIZADO INICIAL DE LA PÁGINA ---
-        function initPage() {
-            document.getElementById('site-title').textContent = siteTitle;
-            document.getElementById('footer-title').textContent = siteTitle;
-            document.getElementById('site-subtitle').textContent = siteSubtitle;
-            document.getElementById('top-bar-text').textContent = topbarText;
-
-            // Cargar datos legales en el admin y modales
-            loadLegalData();
-
-            // Cargar Fuentes
-            applyFonts(fontTitle, fontBody);
-            document.getElementById('select-font-title').value = fontTitle;
-            document.getElementById('select-font-body').value = fontBody;
-
-            // Cargar Logo y Fondo del Encabezado
-            document.getElementById('site-logo').src = brandLogoImg;
-            changeLogoSize(logoSize);
-            document.getElementById('input-logo-size').value = logoSize;
-
-            if (headerBgImg) {
-                document.getElementById('main-header').style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('${headerBgImg}')`;
-            }
-            if (bodyBgImg) {
-                document.body.style.backgroundImage = `url('${bodyBgImg}')`;
-            }
-
-            renderNavCategories();
-            renderAdminCategories();
-            populateCategoryDropdown();
-            renderProducts(products);
-            checkCookieConsent();
-        }
-
-        // --- MANEJO DE COOKIES ---
-        function checkCookieConsent() {
-            if (!localStorage.getItem('macrame_cookies_accepted')) {
-                document.getElementById('cookie-banner').style.display = 'flex';
-            }
-        }
-
-        function acceptCookies() {
-            localStorage.setItem('macrame_cookies_accepted', 'true');
-            document.getElementById('cookie-banner').style.display = 'none';
-        }
-
-        // --- MODALES LEGALES ---
-        function openModal(id) {
-            document.getElementById(id).style.display = 'flex';
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).style.display = 'none';
-        }
-
-        // --- CARGAR / GUARDAR DATOS LEGALES ---
-        function loadLegalData() {
-            document.getElementById('legal-company-name').value = legalName;
-            document.getElementById('legal-cif').value = legalCif;
-            document.getElementById('legal-email').value = legalEmail;
-            document.getElementById('legal-address').value = legalAddress;
-
-            document.querySelectorAll('.legal-name-txt').forEach(el => el.textContent = legalName);
-            document.querySelectorAll('.legal-cif-txt').forEach(el => el.textContent = legalCif);
-            document.querySelectorAll('.legal-email-txt').forEach(el => el.textContent = legalEmail);
-            document.querySelectorAll('.legal-address-txt').forEach(el => el.textContent = legalAddress);
-        }
-
-        function saveLegalData() {
-            legalName = document.getElementById('legal-company-name').value;
-            legalCif = document.getElementById('legal-cif').value;
-            legalEmail = document.getElementById('legal-email').value;
-            legalAddress = document.getElementById('legal-address').value;
-
-            localStorage.setItem('macrame_v1_legal_name', legalName);
-            localStorage.setItem('macrame_v1_legal_cif', legalCif);
-            localStorage.setItem('macrame_v1_legal_email', legalEmail);
-            localStorage.setItem('macrame_v1_legal_address', legalAddress);
-
-            loadLegalData();
-            alert('¡Datos legales actualizados con éxito!');
-        }
-
-        // --- GESTIÓN DE FUENTES TIPOGRÁFICAS ---
-        function applyFonts(fTitle, fBody) {
-            document.documentElement.style.setProperty('--font-title', fTitle);
-            document.documentElement.style.setProperty('--font-body', fBody);
-        }
-
-        function saveFonts() {
-            fontTitle = document.getElementById('select-font-title').value;
-            fontBody = document.getElementById('select-font-body').value;
-
-            applyFonts(fontTitle, fontBody);
-
-            localStorage.setItem('macrame_v4_font_title', fontTitle);
-            localStorage.setItem('macrame_v4_font_body', fontBody);
-
-            alert('¡Tipografías guardadas con éxito!');
-        }
-
-        // --- CAMBIAR TAMAÑO DEL LOGO ---
-        function changeLogoSize(size) {
-            const logo = document.getElementById('site-logo');
-            logo.style.width = size + 'px';
-            document.getElementById('logo-size-val').textContent = size + 'px';
-            localStorage.setItem('macrame_v3_logo_size', size);
-        }
-
-        // --- RENDERIZAR NAVEGACIÓN PRINCIPAL DE CATEGORÍAS ---
-        function renderNavCategories() {
-            const nav = document.getElementById('main-category-nav');
-            nav.innerHTML = `<button class="category-btn active" onclick="filterProducts('Todos', this)">Ver Todo</button>`;
+        // 1. Cargar productos desde Supabase al iniciar
+        async function fetchProducts() {
+            const { data, error } = await db.from('productos').select('*').order('created_at', { ascending: false });
             
-            categories.forEach(cat => {
-                const btn = document.createElement('button');
-                btn.className = 'category-btn';
-                btn.textContent = cat;
-                btn.onclick = function() { filterProducts(cat, this); };
-                nav.appendChild(btn);
-            });
-        }
-
-        // --- RENDERIZAR LISTA DE CATEGORÍAS DENTRO DEL PANEL ADMIN ---
-        function renderAdminCategories() {
-            const container = document.getElementById('categories-admin-list');
-            container.innerHTML = '';
-
-            categories.forEach((cat) => {
-                const div = document.createElement('div');
-                div.className = 'category-item';
-                div.innerHTML = `
-                    <input type="text" class="cat-input" value="${cat}" placeholder="Nombre categoría">
-                    <button class="btn-cat-del" onclick="removeCategoryField(this)">✕</button>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function addCategoryField() {
-            const container = document.getElementById('categories-admin-list');
-            const div = document.createElement('div');
-            div.className = 'category-item';
-            div.innerHTML = `
-                <input type="text" class="cat-input" value="" placeholder="Nueva categoría">
-                <button class="btn-cat-del" onclick="removeCategoryField(this)">✕</button>
-            `;
-            container.appendChild(div);
-        }
-
-        function removeCategoryField(btn) {
-            btn.parentElement.remove();
-        }
-
-        // --- GUARDAR NUEVAS CATEGORÍAS ---
-        function saveCategories() {
-            const inputs = document.querySelectorAll('.cat-input');
-            const newCatList = [];
-
-            inputs.forEach(input => {
-                const val = input.value.trim();
-                if(val !== "" && !newCatList.includes(val)) {
-                    newCatList.push(val);
-                }
-            });
-
-            if (newCatList.length === 0) {
-                alert('Debes tener al menos una categoría.');
+            if (error) {
+                console.error('Error al cargar:', error);
+                container.innerHTML = '<p>Error al conectar con la base de datos.</p>';
                 return;
             }
 
-            categories = newCatList;
-            localStorage.setItem('macrame_v3_categories', JSON.stringify(categories));
-
-            renderNavCategories();
-            populateCategoryDropdown();
-            alert('¡Categorías guardadas con éxito!');
-        }
-
-        // --- LLENAR EL DESPLEGABLE DEL FORMULARIO DE PRODUCTOS ---
-        function populateCategoryDropdown() {
-            const select = document.getElementById('p-category');
-            select.innerHTML = '';
-            categories.forEach(cat => {
-                const option = document.createElement('option');
-                option.value = cat;
-                option.textContent = cat;
-                select.appendChild(option);
-            });
-        }
-
-        // --- DESPLEGAR PRODUCTOS ---
-        function renderProducts(items) {
-            const container = document.getElementById('products-container');
-            container.innerHTML = '';
-
-            if (items.length === 0) {
-                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">No hay artículos disponibles en esta categoría.</p>';
+            if (data.length === 0) {
+                container.innerHTML = '<p>No hay productos guardados aún.</p>';
                 return;
             }
 
-            items.forEach(product => {
-                const msg = encodeURIComponent(`Hola! Quería consultar disponibilidad para comprar "${product.title}" (${product.price}€).`);
-                const waUrl = `https://wa.me/${TEL_WHATSAPP}?text=${msg}`;
-
-                const card = document.createElement('div');
-                card.className = 'product-card';
-                card.innerHTML = `
-                    <button class="btn-delete" onclick="deleteProduct(${product.id})" title="Eliminar">&times;</button>
-                    <div class="img-container">
-                        <img src="${product.image}" alt="${product.title}" class="product-img">
-                    </div>
-                    <div class="product-info">
-                        <span class="product-category">${product.category}</span>
-                        <h3 class="product-title">${product.title}</h3>
-                        <p class="product-price">${product.price} €</p>
-                        <a href="${waUrl}" target="_blank" class="btn-contact">Comprar / Consultar</a>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
+            container.innerHTML = data.map(p => `
+                <div class="card">
+                    <img src="${p.image}" alt="${p.title}" onerror="this.src='https://via.placeholder.com/200'">
+                    <h3>${p.title}</h3>
+                    <p class="price">${p.price} €</p>
+                    <button class="delete-btn" onclick="deleteProduct(${p.id})">Eliminar</button>
+                </div>
+            `).join('');
         }
 
-        // --- FILTRADO POR CATEGORÍA ---
-        function filterProducts(cat, btn) {
-            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-            if(btn) btn.classList.add('active');
-
-            if (cat === 'Todos') {
-                renderProducts(products);
-            } else {
-                renderProducts(products.filter(p => p.category === cat));
-            }
-        }
-
-        // --- MODO ADMIN ---
-        function toggleAdmin() {
-            document.body.classList.toggle('admin-mode');
-            const panel = document.getElementById('admin-panel');
-            panel.classList.toggle('active');
-            if(panel.classList.contains('active')) {
-                panel.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-
-        // --- ACTUALIZAR TEXTOS ---
-        function updateTexts() {
-            const title = document.getElementById('input-title').value;
-            const sub = document.getElementById('input-subtitle').value;
-            const top = document.getElementById('input-topbar').value;
-
-            if (title) {
-                siteTitle = title;
-                localStorage.setItem('macrame_v2_title', title);
-                document.getElementById('site-title').textContent = title;
-                document.getElementById('footer-title').textContent = title;
-            }
-            if (sub) {
-                siteSubtitle = sub;
-                localStorage.setItem('macrame_v2_subtitle', sub);
-                document.getElementById('site-subtitle').textContent = sub;
-            }
-            if (top) {
-                topbarText = top;
-                localStorage.setItem('macrame_v2_topbar', top);
-                document.getElementById('top-bar-text').textContent = top;
-            }
-
-            alert('¡Textos actualizados!');
-        }
-
-        // --- SUBIR IMÁGENES Y LOGO ---
-        function updateImages() {
-            const logoInput = document.getElementById('input-logo');
-            const headerInput = document.getElementById('input-header-bg');
-            const bodyInput = document.getElementById('input-body-bg');
-
-            if (logoInput.files && logoInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    brandLogoImg = e.target.result;
-                    document.getElementById('site-logo').src = brandLogoImg;
-                    localStorage.setItem('macrame_v2_logo', brandLogoImg);
-                };
-                reader.readAsDataURL(logoInput.files[0]);
-            }
-
-            if (headerInput.files && headerInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    headerBgImg = e.target.result;
-                    document.getElementById('main-header').style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('${headerBgImg}')`;
-                    localStorage.setItem('macrame_v2_header_bg', headerBgImg);
-                };
-                reader.readAsDataURL(headerInput.files[0]);
-            }
-
-            if (bodyInput.files && bodyInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    bodyBgImg = e.target.result;
-                    document.body.style.backgroundImage = `url('${bodyBgImg}')`;
-                    localStorage.setItem('macrame_v2_body_bg', bodyBgImg);
-                };
-                reader.readAsDataURL(bodyInput.files[0]);
-            }
-
-            alert('Procesando imágenes. Se aplicarán en unos instantes.');
-        }
-
-        function resetBodyBg() {
-            bodyBgImg = '';
-            document.body.style.backgroundImage = 'none';
-            localStorage.removeItem('macrame_v2_body_bg');
-            alert('Fondo general eliminado.');
-        }
-
-        // --- GESTIÓN DE PRODUCTOS (AÑADIR Y ELIMINAR) ---
-        function addProduct(event) {
-            event.preventDefault();
+        // 2. Guardar nuevo producto en la nube
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
             const title = document.getElementById('p-title').value;
-            const category = document.getElementById('p-category').value;
-            const price = parseFloat(document.getElementById('p-price').value).toFixed(2);
-            const imageInput = document.getElementById('p-image');
+            const price = parseFloat(document.getElementById('p-price').value);
+            const image = document.getElementById('p-image').value;
 
-            if (imageInput.files && imageInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const newProduct = {
-                        id: Date.now(),
-                        title: title,
-                        category: category,
-                        price: price,
-                        image: e.target.result
-                    };
+            const { error } = await db.from('productos').insert([{ title, price, image }]);
 
-                    products.unshift(newProduct);
-                    localStorage.setItem('macrame_v2_products', JSON.stringify(products));
-                    renderProducts(products);
-                    document.getElementById('add-product-form').reset();
-                    alert('¡Producto añadido exitosamente!');
-                };
-                reader.readAsDataURL(imageInput.files[0]);
+            if (error) {
+                alert('Error al guardar el producto: ' + error.message);
+            } else {
+                form.reset();
+                fetchProducts();
+            }
+        });
+
+        // 3. Eliminar producto de la nube
+        async function deleteProduct(id) {
+            if (!confirm('¿Seguro que quieres borrar este producto?')) return;
+            const { error } = await db.from('productos').delete().eq('id', id);
+            
+            if (error) {
+                alert('Error al eliminar: ' + error.message);
+            } else {
+                fetchProducts();
             }
         }
 
-        function deleteProduct(id) {
-            if (confirm('¿Seguro que deseas eliminar este producto?')) {
-                products = products.filter(p => p.id !== id);
-                localStorage.setItem('macrame_v2_products', JSON.stringify(products));
-                renderProducts(products);
-            }
-        }
-
-        window.onload = initPage;
+        // Carga inicial
+        fetchProducts();
     </script>
 </body>
 </html>
-
-```
