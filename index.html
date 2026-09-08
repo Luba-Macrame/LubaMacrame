@@ -81,7 +81,7 @@
         }
 
         .brand-logo {
-            width: 230px;
+            width: 130px;
             height: auto;
             max-width: 85vw;
             object-fit: contain;
@@ -102,7 +102,6 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
-        /* Línea 107: Subtítulo con tamaño ajustado */
         header p {
             font-size: clamp(0.75rem, 2vw, 0.9rem);
             max-width: 650px;
@@ -127,13 +126,13 @@
             z-index: 1000;
             transition: all 0.3s;
             font-weight: 500;
-            display: none; /* OCULTO PARA LOS CLIENTES */
+            display: none;
             align-items: center;
             gap: 6px;
         }
 
         .btn-admin-toggle.visible {
-            display: flex; /* SOLO VISIBLE CON ?admin=true EN LA URL */
+            display: flex;
         }
 
         .btn-admin-toggle:hover {
@@ -355,7 +354,52 @@
             font-size: clamp(1rem, 3vw, 1.15rem);
             font-weight: 600;
             color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        /* SELECTOR VISUAL DE COLORES (CIRCULOS) */
+        .color-selector-container {
             margin-bottom: 14px;
+            text-align: center;
+        }
+
+        .color-label {
+            font-size: 0.72rem;
+            color: var(--text-light);
+            margin-bottom: 6px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .color-options {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .color-circle-sample {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: inline-block;
+            border: 2px solid #e0d8ce;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+
+        .color-circle-sample:hover {
+            transform: scale(1.18);
+        }
+
+        .color-circle-sample.selected {
+            border-color: var(--primary);
+            transform: scale(1.22);
+            box-shadow: 0 0 0 2px rgba(140, 109, 88, 0.4);
         }
 
         .btn-contact {
@@ -379,7 +423,6 @@
             color: #ffffff;
         }
 
-        /* Botones de Administrador dentro de cada producto */
         .admin-controls-card {
             position: absolute;
             top: 10px;
@@ -410,6 +453,37 @@
         .btn-edit-product { background: #3b82f6; }
         .btn-delete-product { background: #dc3545; }
 
+        /* BANNER DE COOKIES */
+        .cookie-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #2b2b2b;
+            color: #ffffff;
+            padding: 15px 20px;
+            font-size: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.15);
+            z-index: 2000;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .cookie-banner button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* PIE DE PÁGINA / DATOS EMPRESA */
         footer {
             text-align: center;
             padding: 40px 15px 30px;
@@ -417,6 +491,31 @@
             border-top: 1px solid var(--border);
             font-size: 0.8rem;
             color: #777;
+        }
+
+        .company-info {
+            max-width: 800px;
+            margin: 0 auto 20px;
+            line-height: 1.6;
+        }
+
+        .company-info h4 {
+            color: var(--primary-dark);
+            margin-bottom: 6px;
+            font-family: var(--font-title);
+        }
+
+        .footer-links {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #666;
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -525,6 +624,10 @@
                             <input type="number" step="0.01" id="p-price" required placeholder="35.90">
                         </div>
                         <div class="form-group">
+                            <label>Colores Disponibles (Separados por comas):</label>
+                            <input type="text" id="p-colors" placeholder="Ej. Blanco, Beige, Mostaza, Terracota">
+                        </div>
+                        <div class="form-group">
                             <label>Canal de Contacto:</label>
                             <select id="p-contact-type">
                                 <option value="whatsapp">💬 WhatsApp</option>
@@ -553,24 +656,52 @@
         <div class="products-grid" id="products-container"></div>
     </main>
 
+    <!-- BANNER DE COOKIES -->
+    <div id="cookie-banner" class="cookie-banner" style="display: none;">
+        <span>Utilizamos cookies para garantizar la mejor experiencia en nuestra web. Al continuar navegando, aceptas su uso.</span>
+        <button onclick="acceptCookies()">Aceptar Cookies</button>
+    </div>
+
+    <!-- PIE DE PÁGINA CON DATOS EMPRESA -->
     <footer>
+        <div class="company-info">
+            <h4>Luba Macramé Artesanal</h4>
+            <p>Empresa / Autónomo: <strong>Nombre Fiscal / Razón Social</strong> | NIF/CIF: <strong>00000000X</strong></p>
+            <p>Dirección: <strong>Calle / Ciudad / Código Postal / España</strong></p>
+            <p>Email de contacto: <strong>contacto@lubamacrame.com</strong></p>
+        </div>
         <p>&copy; <span id="year"></span> Macramé Artesanal. Todos los derechos reservados.</p>
+        <div class="footer-links">
+            <a href="#">Aviso Legal</a>
+            <a href="#">Política de Privacidad</a>
+            <a href="#">Política de Cookies</a>
+        </div>
     </footer>
 
     <script>
         // ==========================================
-        // DATO CONEXIÓN SUPABASE
+        // DATOS DE CONEXIÓN SUPABASE
         // ==========================================
         const SUPABASE_URL = "https://vgxfitexnkvjijkamdcg.supabase.co"; 
         const SUPABASE_ANON_KEY = "sb_publishable_MtWly2tb9B_XdQrIWpau6g_VR-F-bS_";
 
-        // Inicialización de Supabase
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let products = [];
+        let selectedColors = {}; // Guardar el color elegido de cada producto
         let contactPhone = "34600000000";
 
         document.getElementById('year').textContent = new Date().getFullYear();
+
+        // COMPROBAR COOKIES
+        if (!localStorage.getItem('cookiesAccepted')) {
+            document.getElementById('cookie-banner').style.display = 'flex';
+        }
+
+        function acceptCookies() {
+            localStorage.setItem('cookiesAccepted', 'true');
+            document.getElementById('cookie-banner').style.display = 'none';
+        }
 
         // CONTROL ACCESO ADMINISTRADOR MEDIANTE URL (?admin=true)
         const urlParams = new URLSearchParams(window.location.search);
@@ -580,7 +711,35 @@
             document.getElementById('admin-toggle-btn').classList.add('visible');
         }
 
-        // --- CARGAR PRODUCTOS DESDE SUPABASE ---
+        // DICCIONARIO PARA CONVERTIR NOMRES DE COLORES A VALORES CSS PINTABLES
+        const colorMap = {
+            'blanco': '#ffffff',
+            'negro': '#222222',
+            'rojo': '#e63946',
+            'azul': '#1d3557',
+            'azul marino': '#000080',
+            'verde': '#2a9d8f',
+            'amarillo': '#e9c46a',
+            'rosa': '#f4a261',
+            'beige': '#f5f5dc',
+            'crudo': '#fdf5e6',
+            'mostaza': '#e3a857',
+            'terracota': '#cb6d51',
+            'gris': '#888888',
+            'morado': '#800080',
+            'lila': '#c8a2c8',
+            'naranja': '#f8961e',
+            'marrón': '#7f4f24',
+            'marron': '#7f4f24'
+        };
+
+        function getColorCode(colorName) {
+            const cleanName = colorName.trim().toLowerCase();
+            if (cleanName.startsWith('#')) return cleanName;
+            return colorMap[cleanName] || cleanName;
+        }
+
+        // CARGAR PRODUCTOS DESDE SUPABASE
         async function fetchProducts() {
             try {
                 const { data, error } = await _supabase
@@ -600,7 +759,6 @@
             }
         }
 
-        // --- RENDERIZAR NAVEGACIÓN Y FILTROS ---
         function renderCategoriesNav() {
             const nav = document.getElementById('main-category-nav');
             const uniqueCategories = ['Todos', ...new Set(products.map(p => p.category).filter(Boolean))];
@@ -626,7 +784,7 @@
             }
         }
 
-        // --- DIBUJAR TARJETAS DE PRODUCTOS ---
+        // DIBUJAR TARJETAS DE PRODUCTOS
         function renderProducts(items) {
             const container = document.getElementById('products-container');
             container.innerHTML = '';
@@ -637,8 +795,30 @@
             }
 
             items.forEach(product => {
-                const msg = encodeURIComponent(`Hola! Me interesa consultar disponibilidad para comprar "${product.title}" (${product.price}€).`);
-                const waUrl = `https://wa.me/${contactPhone}?text=${msg}`;
+                let colorsHtml = '';
+                if (product.colors) {
+                    const colorArray = product.colors.split(',').map(c => c.trim()).filter(Boolean);
+                    if (colorArray.length > 0) {
+                        colorsHtml = `
+                            <div class="color-selector-container">
+                                <span class="color-label">Colores disponibles:</span>
+                                <div class="color-options">
+                                    ${colorArray.map(col => {
+                                        const bgValue = getColorCode(col);
+                                        const isSelected = selectedColors[product.id] === col;
+                                        return `
+                                            <span class="color-circle-sample ${isSelected ? 'selected' : ''}" 
+                                                  style="background-color: ${bgValue};"
+                                                  title="${col}" 
+                                                  onclick="selectColor(${product.id}, '${col}', this)">
+                                            </span>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
 
                 const card = document.createElement('div');
                 card.className = 'product-card';
@@ -654,14 +834,39 @@
                         <span class="product-category">${product.category || 'General'}</span>
                         <h3 class="product-title">${product.title}</h3>
                         <p class="product-price">${product.price} €</p>
-                        <a href="${waUrl}" target="_blank" class="btn-contact">💬 Comprar por WhatsApp</a>
+                        ${colorsHtml}
+                        <button onclick="buyProduct(${product.id})" class="btn-contact" style="width: 100%; border: 1px solid var(--primary); cursor: pointer;">💬 Comprar por WhatsApp</button>
                     </div>
                 `;
                 container.appendChild(card);
             });
         }
 
-        // --- EDITAR TEXTOS DE LA PÁGINA ---
+        // MARCAR UN COLOR SELECCIONADO POR EL USUARIO
+        function selectColor(productId, colorName, element) {
+            selectedColors[productId] = colorName;
+            const parent = element.parentElement;
+            parent.querySelectorAll('.color-circle-sample').forEach(tag => tag.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+
+        // ENVIAR WHATSAPP CON EL COLOR ELEGIDO
+        function buyProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            let colorText = "";
+            if (selectedColors[productId]) {
+                colorText = ` en color "${selectedColors[productId]}"`;
+            } else if (product.colors) {
+                colorText = ` (Colores disp: ${product.colors})`;
+            }
+
+            const msg = encodeURIComponent(`Hola! Me interesa consultar disponibilidad para comprar "${product.title}" (${product.price}€)${colorText}.`);
+            window.open(`https://wa.me/${contactPhone}?text=${msg}`, '_blank');
+        }
+
+        // EDITAR TEXTOS DE LA PÁGINA
         function updateTexts() {
             const title = document.getElementById('input-title').value;
             const sub = document.getElementById('input-subtitle').value;
@@ -676,7 +881,6 @@
             alert('¡Textos actualizados!');
         }
 
-        // --- EDITAR TIPOGRAFÍA ---
         function saveFonts() {
             const fTitle = document.getElementById('select-font-title').value;
             const fBody = document.getElementById('select-font-body').value;
@@ -687,7 +891,6 @@
             alert('¡Tipografía cambiada!');
         }
 
-        // --- EDITAR LOGO Y FONDOS ---
         function changeLogoSize(size) {
             document.getElementById('site-logo').style.width = size + 'px';
             document.getElementById('logo-size-val').textContent = size + 'px';
@@ -697,9 +900,7 @@
             const logoUrl = document.getElementById('input-logo-url').value;
             const headerUrl = document.getElementById('input-header-url').value;
 
-            if (logoUrl) {
-                document.getElementById('site-logo').src = logoUrl;
-            }
+            if (logoUrl) document.getElementById('site-logo').src = logoUrl;
             if (headerUrl) {
                 document.getElementById('main-header').style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('${headerUrl}')`;
             }
@@ -707,7 +908,7 @@
             alert('¡Imágenes aplicadas!');
         }
 
-        // --- CREAR O ACTUALIZAR PRODUCTO EN SUPABASE ---
+        // CREAR O ACTUALIZAR PRODUCTO EN SUPABASE
         async function saveProduct(e) {
             e.preventDefault();
 
@@ -715,6 +916,7 @@
             const title = document.getElementById('p-title').value;
             const category = document.getElementById('p-category').value;
             const price = parseFloat(document.getElementById('p-price').value);
+            const colors = document.getElementById('p-colors').value;
             const contactType = document.getElementById('p-contact-type').value;
             const imageUrl = document.getElementById('p-image-url').value;
 
@@ -722,6 +924,7 @@
                 title: title,
                 category: category,
                 price: price,
+                colors: colors,
                 contact_type: contactType,
                 image: imageUrl
             };
@@ -742,12 +945,12 @@
             }
         }
 
-        // PREPARAR EL FORMULARIO PARA EDITAR
         function startEditProduct(product) {
             document.getElementById('p-id').value = product.id;
             document.getElementById('p-title').value = product.title;
             document.getElementById('p-category').value = product.category;
             document.getElementById('p-price').value = product.price;
+            document.getElementById('p-colors').value = product.colors || '';
             document.getElementById('p-contact-type').value = product.contact_type || 'whatsapp';
             document.getElementById('p-image-url').value = product.image;
 
@@ -758,7 +961,6 @@
             document.getElementById('admin-panel').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // LIMPIAR FORMULARIO
         function resetProductForm() {
             document.getElementById('add-product-form').reset();
             document.getElementById('p-id').value = '';
@@ -767,14 +969,9 @@
             document.getElementById('btn-cancel-edit').style.display = "none";
         }
 
-        // --- ELIMINAR PRODUCTO EN SUPABASE ---
         async function deleteProduct(id) {
             if (confirm('¿Eliminar este producto de la base de datos?')) {
-                const { error } = await _supabase
-                    .from('productos')
-                    .delete()
-                    .eq('id', id);
-
+                const { error } = await _supabase.from('productos').delete().eq('id', id);
                 if (error) {
                     alert("Error al eliminar: " + error.message);
                 } else {
@@ -783,7 +980,6 @@
             }
         }
 
-        // --- PANEL ADMIN TOGGLE ---
         function toggleAdmin() {
             document.body.classList.toggle('admin-mode');
             const panel = document.getElementById('admin-panel');
@@ -793,7 +989,6 @@
             }
         }
 
-        // Cargar productos al iniciar
         fetchProducts();
     </script>
 </body>
