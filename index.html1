@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tienda de Macramé Artesanal</title>
-    <!-- Carga de Fuentes Elegantes -->
+    <!-- Carga de Fuentes Elegantes desde Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Cinzel:wght@500;700&family=Inter:wght@300;400;600&family=Lora:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -89,6 +89,10 @@
             filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.3));
         }
 
+        .brand-logo:hover {
+            transform: scale(1.02);
+        }
+
         header h1 {
             font-family: var(--font-title);
             font-size: clamp(1.8rem, 6vw, 3.2rem);
@@ -98,7 +102,7 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
-        /* LÍNEA 107: Tamaño del Subtítulo */
+        /* Línea 107: Subtítulo con tamaño ajustado */
         header p {
             font-size: clamp(0.75rem, 2vw, 0.9rem);
             max-width: 650px;
@@ -123,13 +127,13 @@
             z-index: 1000;
             transition: all 0.3s;
             font-weight: 500;
-            display: none; /* Se oculta por defecto para clientes */
+            display: none; /* OCULTO PARA LOS CLIENTES */
             align-items: center;
             gap: 6px;
         }
 
         .btn-admin-toggle.visible {
-            display: flex; /* Se activa con ?admin=true */
+            display: flex; /* SOLO VISIBLE CON ?admin=true EN LA URL */
         }
 
         .btn-admin-toggle:hover {
@@ -375,8 +379,8 @@
             color: #ffffff;
         }
 
-        /* Botones de Administración en la Tarjeta */
-        .admin-actions {
+        /* Botones de Administrador dentro de cada producto */
+        .admin-controls-card {
             position: absolute;
             top: 10px;
             right: 10px;
@@ -385,23 +389,26 @@
             z-index: 10;
         }
 
-        .admin-mode .admin-actions {
+        .admin-mode .admin-controls-card {
             display: flex;
         }
 
-        .btn-card-action {
+        .btn-card-icon {
             border: none;
             width: 32px;
             height: 32px;
             border-radius: 50%;
             cursor: pointer;
-            font-weight: bold;
+            font-size: 0.85rem;
             color: white;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
         }
 
-        .btn-edit-prod { background: #3b82f6; }
-        .btn-delete-prod { background: #ef4444; }
+        .btn-edit-product { background: #3b82f6; }
+        .btn-delete-product { background: #dc3545; }
 
         footer {
             text-align: center;
@@ -501,7 +508,7 @@
 
             <!-- 4. SUBIR O EDITAR PRODUCTO EN SUPABASE -->
             <div class="admin-section" style="grid-column: 1 / -1;">
-                <h3 id="form-product-title">4. Subir Nuevo Producto</h3>
+                <h3 id="form-product-heading">4. Subir Nuevo Producto (Supabase)</h3>
                 <form id="add-product-form" onsubmit="saveProduct(event)">
                     <input type="hidden" id="p-id">
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
@@ -530,8 +537,8 @@
                         </div>
                     </div>
                     <div style="display: flex; gap: 10px; margin-top: 8px;">
-                        <button type="submit" class="btn-submit" id="btn-save-prod">Publicar en Supabase</button>
-                        <button type="button" class="btn-submit" id="btn-cancel-edit" style="background: #888; display: none;" onclick="resetForm()">Cancelar Edición</button>
+                        <button type="submit" class="btn-submit" id="btn-save-product">Publicar en Supabase</button>
+                        <button type="button" class="btn-submit" id="btn-cancel-edit" style="background: #777; display: none;" onclick="resetProductForm()">Cancelar Edición</button>
                     </div>
                 </form>
             </div>
@@ -551,9 +558,13 @@
     </footer>
 
     <script>
+        // ==========================================
+        // DATO CONEXIÓN SUPABASE
+        // ==========================================
         const SUPABASE_URL = "https://vgxfitexnkvjijkamdcg.supabase.co"; 
-        const SUPABASE_ANON_KEY = "PEGA_AQUI_TU_CLAVE_ANON";
+        const SUPABASE_ANON_KEY = "sb_publishable_MtWly2tb9B_XdQrIWpau6g_VR-F-bS_";
 
+        // Inicialización de Supabase
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let products = [];
@@ -561,15 +572,15 @@
 
         document.getElementById('year').textContent = new Date().getFullYear();
 
-        // COMPROBAR MODO ADMIN DESDE LA URL
+        // CONTROL ACCESO ADMINISTRADOR MEDIANTE URL (?admin=true)
         const urlParams = new URLSearchParams(window.location.search);
-        const isAdmin = urlParams.get('admin') === 'true';
+        const isAdminUser = urlParams.get('admin') === 'true';
 
-        if (isAdmin) {
+        if (isAdminUser) {
             document.getElementById('admin-toggle-btn').classList.add('visible');
         }
 
-        // CARGAR PRODUCTOS
+        // --- CARGAR PRODUCTOS DESDE SUPABASE ---
         async function fetchProducts() {
             try {
                 const { data, error } = await _supabase
@@ -589,6 +600,7 @@
             }
         }
 
+        // --- RENDERIZAR NAVEGACIÓN Y FILTROS ---
         function renderCategoriesNav() {
             const nav = document.getElementById('main-category-nav');
             const uniqueCategories = ['Todos', ...new Set(products.map(p => p.category).filter(Boolean))];
@@ -614,12 +626,13 @@
             }
         }
 
+        // --- DIBUJAR TARJETAS DE PRODUCTOS ---
         function renderProducts(items) {
             const container = document.getElementById('products-container');
             container.innerHTML = '';
 
             if (!items || items.length === 0) {
-                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">No hay productos disponibles.</p>';
+                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">No hay productos creados aún.</p>';
                 return;
             }
 
@@ -630,9 +643,9 @@
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 card.innerHTML = `
-                    <div class="admin-actions">
-                        <button class="btn-card-action btn-edit-prod" onclick='editProduct(${JSON.stringify(product)})' title="Editar">✏️</button>
-                        <button class="btn-card-action btn-delete-prod" onclick="deleteProduct(${product.id})" title="Eliminar">&times;</button>
+                    <div class="admin-controls-card">
+                        <button class="btn-card-icon btn-edit-product" onclick='startEditProduct(${JSON.stringify(product)})' title="Editar Producto">✏️</button>
+                        <button class="btn-card-icon btn-delete-product" onclick="deleteProduct(${product.id})" title="Eliminar Producto">&times;</button>
                     </div>
                     <div class="img-container">
                         <img src="${product.image}" alt="${product.title}" class="product-img">
@@ -648,75 +661,7 @@
             });
         }
 
-        // GUARDAR O EDITAR PRODUCTO EN SUPABASE
-        async function saveProduct(e) {
-            e.preventDefault();
-
-            const id = document.getElementById('p-id').value;
-            const title = document.getElementById('p-title').value;
-            const category = document.getElementById('p-category').value;
-            const price = parseFloat(document.getElementById('p-price').value);
-            const contactType = document.getElementById('p-contact-type').value;
-            const imageUrl = document.getElementById('p-image-url').value;
-
-            const productData = {
-                title: title,
-                category: category,
-                price: price,
-                contact_type: contactType,
-                image: imageUrl
-            };
-
-            let result;
-            if (id) {
-                result = await _supabase.from('productos').update(productData).eq('id', id);
-            } else {
-                result = await _supabase.from('productos').insert([productData]);
-            }
-
-            if (result.error) {
-                alert("Error al guardar: " + result.error.message);
-            } else {
-                alert(id ? "¡Producto actualizado!" : "¡Producto creado!");
-                resetForm();
-                fetchProducts();
-            }
-        }
-
-        function editProduct(prod) {
-            document.getElementById('p-id').value = prod.id;
-            document.getElementById('p-title').value = prod.title;
-            document.getElementById('p-category').value = prod.category;
-            document.getElementById('p-price').value = prod.price;
-            document.getElementById('p-contact-type').value = prod.contact_type || 'whatsapp';
-            document.getElementById('p-image-url').value = prod.image;
-
-            document.getElementById('form-product-title').textContent = "Editar Producto #" + prod.id;
-            document.getElementById('btn-save-prod').textContent = "Guardar Cambios";
-            document.getElementById('btn-cancel-edit').style.display = "block";
-
-            document.getElementById('admin-panel').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function resetForm() {
-            document.getElementById('add-product-form').reset();
-            document.getElementById('p-id').value = '';
-            document.getElementById('form-product-title').textContent = "4. Subir Nuevo Producto";
-            document.getElementById('btn-save-prod').textContent = "Publicar en Supabase";
-            document.getElementById('btn-cancel-edit').style.display = "none";
-        }
-
-        async function deleteProduct(id) {
-            if (confirm('¿Eliminar este producto de la base de datos?')) {
-                const { error } = await _supabase.from('productos').delete().eq('id', id);
-                if (error) {
-                    alert("Error al eliminar: " + error.message);
-                } else {
-                    fetchProducts();
-                }
-            }
-        }
-
+        // --- EDITAR TEXTOS DE LA PÁGINA ---
         function updateTexts() {
             const title = document.getElementById('input-title').value;
             const sub = document.getElementById('input-subtitle').value;
@@ -731,6 +676,7 @@
             alert('¡Textos actualizados!');
         }
 
+        // --- EDITAR TIPOGRAFÍA ---
         function saveFonts() {
             const fTitle = document.getElementById('select-font-title').value;
             const fBody = document.getElementById('select-font-body').value;
@@ -741,6 +687,7 @@
             alert('¡Tipografía cambiada!');
         }
 
+        // --- EDITAR LOGO Y FONDOS ---
         function changeLogoSize(size) {
             document.getElementById('site-logo').style.width = size + 'px';
             document.getElementById('logo-size-val').textContent = size + 'px';
@@ -750,7 +697,9 @@
             const logoUrl = document.getElementById('input-logo-url').value;
             const headerUrl = document.getElementById('input-header-url').value;
 
-            if (logoUrl) document.getElementById('site-logo').src = logoUrl;
+            if (logoUrl) {
+                document.getElementById('site-logo').src = logoUrl;
+            }
             if (headerUrl) {
                 document.getElementById('main-header').style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('${headerUrl}')`;
             }
@@ -758,6 +707,83 @@
             alert('¡Imágenes aplicadas!');
         }
 
+        // --- CREAR O ACTUALIZAR PRODUCTO EN SUPABASE ---
+        async function saveProduct(e) {
+            e.preventDefault();
+
+            const id = document.getElementById('p-id').value;
+            const title = document.getElementById('p-title').value;
+            const category = document.getElementById('p-category').value;
+            const price = parseFloat(document.getElementById('p-price').value);
+            const contactType = document.getElementById('p-contact-type').value;
+            const imageUrl = document.getElementById('p-image-url').value;
+
+            const productPayload = {
+                title: title,
+                category: category,
+                price: price,
+                contact_type: contactType,
+                image: imageUrl
+            };
+
+            let response;
+            if (id) {
+                response = await _supabase.from('productos').update(productPayload).eq('id', id);
+            } else {
+                response = await _supabase.from('productos').insert([productPayload]);
+            }
+
+            if (response.error) {
+                alert("Error al guardar en Supabase: " + response.error.message);
+            } else {
+                alert(id ? "¡Producto editado correctamente!" : "¡Producto guardado en Supabase!");
+                resetProductForm();
+                fetchProducts();
+            }
+        }
+
+        // PREPARAR EL FORMULARIO PARA EDITAR
+        function startEditProduct(product) {
+            document.getElementById('p-id').value = product.id;
+            document.getElementById('p-title').value = product.title;
+            document.getElementById('p-category').value = product.category;
+            document.getElementById('p-price').value = product.price;
+            document.getElementById('p-contact-type').value = product.contact_type || 'whatsapp';
+            document.getElementById('p-image-url').value = product.image;
+
+            document.getElementById('form-product-heading').textContent = "Editar Producto #" + product.id;
+            document.getElementById('btn-save-product').textContent = "Guardar Cambios";
+            document.getElementById('btn-cancel-edit').style.display = "block";
+
+            document.getElementById('admin-panel').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // LIMPIAR FORMULARIO
+        function resetProductForm() {
+            document.getElementById('add-product-form').reset();
+            document.getElementById('p-id').value = '';
+            document.getElementById('form-product-heading').textContent = "4. Subir Nuevo Producto (Supabase)";
+            document.getElementById('btn-save-product').textContent = "Publicar en Supabase";
+            document.getElementById('btn-cancel-edit').style.display = "none";
+        }
+
+        // --- ELIMINAR PRODUCTO EN SUPABASE ---
+        async function deleteProduct(id) {
+            if (confirm('¿Eliminar este producto de la base de datos?')) {
+                const { error } = await _supabase
+                    .from('productos')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) {
+                    alert("Error al eliminar: " + error.message);
+                } else {
+                    fetchProducts();
+                }
+            }
+        }
+
+        // --- PANEL ADMIN TOGGLE ---
         function toggleAdmin() {
             document.body.classList.toggle('admin-mode');
             const panel = document.getElementById('admin-panel');
@@ -767,6 +793,7 @@
             }
         }
 
+        // Cargar productos al iniciar
         fetchProducts();
     </script>
 </body>
