@@ -1,14 +1,15 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tienda de Macramé Artesanal</title>
+    <title>Luba Macramé - Artesanía</title>
     <!-- Carga de Fuentes Elegantes desde Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Cinzel:wght@500;700&family=Inter:wght@300;400;600&family=Lora:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-
+    
     <style>
         :root {
             --bg-color: #fcfaf7;
@@ -81,17 +82,17 @@
         }
 
         .brand-logo {
-            width: 130px; /* Dinámico por JS */
+            width: 220px; /* Dinámico por JS */
             height: auto;
             max-width: 85vw; /* Impide que desborde en móviles aunque el slider sea 800px */
             object-fit: contain;
             transition: transform 0.3s, width 0.2s ease;
-            filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.3));
+            filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.4));
         }
 
-            .brand-logo:hover {
-                transform: scale(1.02);
-            }
+        .brand-logo:hover {
+            transform: scale(1.02);
+        }
 
         header h1 {
             font-family: var(--font-title);
@@ -132,10 +133,10 @@
             gap: 6px;
         }
 
-            .btn-admin-toggle:hover {
-                background: var(--primary);
-                transform: translateY(-2px);
-            }
+        .btn-admin-toggle:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
 
         /* --- PANEL DE ADMINISTRACIÓN --- */
         #admin-panel {
@@ -150,16 +151,16 @@
             width: 92%;
         }
 
-            #admin-panel.active {
-                display: block;
-            }
+        #admin-panel.active {
+            display: block;
+        }
 
-            #admin-panel h2 {
-                font-family: var(--font-title);
-                color: var(--primary);
-                margin-bottom: 18px;
-                font-size: clamp(1.3rem, 4vw, 1.8rem);
-            }
+        #admin-panel h2 {
+            font-family: var(--font-title);
+            color: var(--primary);
+            margin-bottom: 18px;
+            font-size: clamp(1.3rem, 4vw, 1.8rem);
+        }
 
         .admin-grid {
             display: grid;
@@ -174,33 +175,33 @@
             border: 1px solid var(--border);
         }
 
-            .admin-section h3 {
-                font-size: 1rem;
-                margin-bottom: 12px;
-                color: var(--primary-dark);
-                border-bottom: 1px solid var(--border);
-                padding-bottom: 6px;
-            }
+        .admin-section h3 {
+            font-size: 1rem;
+            margin-bottom: 12px;
+            color: var(--primary-dark);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 6px;
+        }
 
         .form-group {
             margin-bottom: 12px;
         }
 
-            .form-group label {
-                display: block;
-                margin-bottom: 4px;
-                font-size: 0.8rem;
-                font-weight: 600;
-            }
+        .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
 
-            .form-group input, .form-group select, .form-group textarea {
-                width: 100%;
-                padding: 8px 10px;
-                border: 1px solid #ddd;
-                border-radius: 6px;
-                font-family: var(--font-body);
-                font-size: 0.85rem;
-            }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+        }
 
         .range-slider-container {
             display: flex;
@@ -208,10 +209,10 @@
             gap: 10px;
         }
 
-            .range-slider-container input[type="range"] {
-                flex-grow: 1;
-                cursor: pointer;
-            }
+        .range-slider-container input[type="range"] {
+            flex-grow: 1;
+            cursor: pointer;
+        }
 
         .range-value {
             font-size: 0.8rem;
@@ -233,9 +234,9 @@
             transition: background 0.3s;
         }
 
-            .btn-submit:hover {
-                background: var(--primary-dark);
-            }
+        .btn-submit:hover {
+            background: var(--primary-dark);
+        }
 
         /* GESTIÓN DE CATEGORÍAS */
         .category-item {
@@ -245,12 +246,12 @@
             margin-bottom: 8px;
         }
 
-            .category-item input {
-                flex-grow: 1;
-                padding: 6px 8px;
-                border: 1px solid #ccc;
-                border-radius: 4px;
-            }
+        .category-item input {
+            flex-grow: 1;
+            padding: 6px 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
 
         .btn-cat-del {
             background: #dc3545;
@@ -269,12 +270,12 @@
             white-space: nowrap;
             margin-bottom: clamp(20px, 4vw, 35px);
             padding: 0 15px 5px;
-            scrollbar-width: none; /* Oculta scrollbar en Firefox */
+            scrollbar-width: none;
         }
 
-            .categories-wrapper::-webkit-scrollbar {
-                display: none; /* Oculta scrollbar en Chrome/Safari */
-            }
+        .categories-wrapper::-webkit-scrollbar {
+            display: none;
+        }
 
         .categories {
             display: inline-flex;
@@ -297,11 +298,11 @@
             flex-shrink: 0;
         }
 
-            .category-btn.active, .category-btn:hover {
-                color: var(--primary);
-                border-bottom: 2px solid var(--primary);
-                font-weight: 600;
-            }
+        .category-btn.active, .category-btn:hover {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+            font-weight: 600;
+        }
 
         /* --- CATÁLOGO DE PRODUCTOS RESPONSIVO --- */
         .container {
@@ -327,10 +328,10 @@
             flex-direction: column;
         }
 
-            .product-card:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-            }
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+        }
 
         .img-container {
             width: 100%;
@@ -398,10 +399,10 @@
             transition: all 0.3s;
         }
 
-            .btn-contact:hover, .btn-contact:active {
-                background: var(--primary);
-                color: #ffffff;
-            }
+        .btn-contact:hover, .btn-contact:active {
+            background: var(--primary);
+            color: #ffffff;
+        }
 
         .btn-delete {
             position: absolute;
@@ -432,15 +433,15 @@
             color: #777;
         }
 
-            footer a {
-                color: var(--primary);
-                text-decoration: none;
-                margin: 0 8px;
-            }
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+            margin: 0 8px;
+        }
 
-                footer a:hover {
-                    text-decoration: underline;
-                }
+        footer a:hover {
+            text-decoration: underline;
+        }
 
         .footer-links {
             margin-top: 10px;
@@ -465,19 +466,19 @@
             gap: 10px;
         }
 
-            #cookie-banner button {
-                background: var(--primary);
-                color: white;
-                border: none;
-                padding: 8px 16px;
-                border-radius: 4px;
-                cursor: pointer;
-                font-weight: 600;
-            }
+        #cookie-banner button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
 
-                #cookie-banner button:hover {
-                    background: var(--primary-dark);
-                }
+        #cookie-banner button:hover {
+            background: var(--primary-dark);
+        }
 
         /* --- MODALES LEGALES --- */
         .modal-legal {
@@ -507,16 +508,16 @@
             font-size: 0.9rem;
         }
 
-            .modal-legal-content h2 {
-                margin-bottom: 15px;
-                color: var(--primary);
-                font-family: var(--font-title);
-            }
+        .modal-legal-content h2 {
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-family: var(--font-title);
+        }
 
-            .modal-legal-content h3 {
-                margin: 15px 0 5px;
-                font-size: 1rem;
-            }
+        .modal-legal-content h3 {
+            margin: 15px 0 5px;
+            font-size: 1rem;
+        }
 
         .close-modal {
             position: absolute;
@@ -529,7 +530,6 @@
             color: #888;
         }
 
-        /* --- AJUSTES ESPECÍFICOS PARA MÓVILES MÁS PEQUEÑOS --- */
         @media (max-width: 580px) {
             .products-grid {
                 grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -555,13 +555,13 @@
     <!-- BARRA DE AVISOS -->
     <div class="top-bar" id="top-bar-text">✨ Piezas artesanales hechas a mano con fibras 100% naturales</div>
 
-    <!-- ENCABEZADO PRINCIPAL (HERO) CON LOGO -->
+    <!-- ENCABEZADO PRINCIPAL (HERO) CON LOGO EN BASE64 -->
     <header id="main-header">
         <div class="brand-logo-container">
-            <img id="site-logo" class="brand-logo" src="https://cdn-icons-png.flaticon.com/512/3063/3063822.png" alt="Logo Marca">
+            <img id="site-logo" class="brand-logo" src="" alt="Luba Macramé Artesanía">
         </div>
-        <h1 id="site-title">Mi Tienda de Macramé</h1>
-        <p id="site-subtitle">Arte textil único para vestir tu hogar y a ti misma.</p>
+        <h1 id="site-title">Luba Macramé</h1>
+        <p id="site-subtitle">Artesanía textil hecha a mano</p>
     </header>
 
     <!-- BOTÓN FLOTANTE MODO EDICIÓN -->
@@ -570,18 +570,18 @@
     <!-- PANEL DE ADMINISTRACIÓN / EDICIÓN COMPLETO -->
     <section id="admin-panel">
         <h2>Panel de Personalización</h2>
-
+        
         <div class="admin-grid">
             <!-- 1. EDITAR TEXTOS Y ANUNCIO -->
             <div class="admin-section">
                 <h3>1. Textos de la Web</h3>
                 <div class="form-group">
                     <label>Título Principal:</label>
-                    <input type="text" id="input-title" placeholder="Ej. Fruto de Macramé">
+                    <input type="text" id="input-title" placeholder="Ej. Luba Macramé">
                 </div>
                 <div class="form-group">
                     <label>Subtítulo / Eslogan:</label>
-                    <input type="text" id="input-subtitle" placeholder="Ej. Decoración y accesorios tejidos a mano">
+                    <input type="text" id="input-subtitle" placeholder="Ej. Artesanía textil hecha a mano">
                 </div>
                 <div class="form-group">
                     <label>Barra de Anuncios (Arriba):</label>
@@ -625,8 +625,8 @@
                 <div class="form-group">
                     <label>Tamaño del Logo (Ancho max 800px):</label>
                     <div class="range-slider-container">
-                        <input type="range" id="input-logo-size" min="30" max="800" value="130" oninput="changeLogoSize(this.value)">
-                        <span id="logo-size-val" class="range-value">130px</span>
+                        <input type="range" id="input-logo-size" min="30" max="800" value="220" oninput="changeLogoSize(this.value)">
+                        <span id="logo-size-val" class="range-value">220px</span>
                     </div>
                 </div>
                 <div class="form-group">
@@ -657,7 +657,7 @@
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
                     <div class="form-group">
                         <label>Nombre Fiscal/Empresa:</label>
-                        <input type="text" id="legal-company-name" placeholder="Ej. Artesanías Macramé S.L.">
+                        <input type="text" id="legal-company-name" placeholder="Ej. Luba Macramé Artesanía S.L.">
                     </div>
                     <div class="form-group">
                         <label>NIF / CIF / DNI:</label>
@@ -665,7 +665,7 @@
                     </div>
                     <div class="form-group">
                         <label>Email de Contacto:</label>
-                        <input type="email" id="legal-email" placeholder="contacto@mitienda.com">
+                        <input type="email" id="legal-email" placeholder="contacto@lubamacrame.com">
                     </div>
                     <div class="form-group">
                         <label>Dirección Fiscal:</label>
@@ -734,7 +734,7 @@
             <p><strong>NIF/CIF:</strong> <span class="legal-cif-txt">--</span></p>
             <p><strong>Dirección:</strong> <span class="legal-address-txt">--</span></p>
             <p><strong>Email:</strong> <span class="legal-email-txt">--</span></p>
-
+            
             <h3>1. Finalidad del Tratamiento de Datos</h3>
             <p>En nuestra tienda tratamos la información que nos facilitan las personas interesadas con el fin de gestionar la atención de consultas, solicitudes de información y pedidos tramitados mediante el enlace directo a WhatsApp o vía correo electrónico.</p>
 
@@ -758,48 +758,53 @@
             <p><strong>Titular:</strong> <span class="legal-name-txt">--</span></p>
             <p><strong>NIF/CIF:</strong> <span class="legal-cif-txt">--</span></p>
             <p><strong>Contacto:</strong> <span class="legal-email-txt">--</span></p>
-
+            
             <h3>Uso del Sitio Web</h3>
             <p>El acceso a la web le atribuye la condición de Usuario e implica la aceptación total de las condiciones expuestas. Todos los productos mostrados están hechos de forma artesanal y pueden presentar leves diferencias respecto a las fotos, rasgo propio de los productos totalmente hechos a mano.</p>
         </div>
     </div>
 
     <footer>
-        <p>&copy; <span id="year"></span> <span id="footer-title">Macramé Artesanal</span>. Inspirado en el arte textil sostenible.</p>
+        <p>&copy; <span id="year"></span> <span id="footer-title">Luba Macramé</span>. Inspirado en el arte textil sostenible.</p>
         <div class="footer-links">
-            <a href="#" onclick="openModal('privacy-modal'); return false;">Política de Privacidad</a> |
+            <a href="#" onclick="openModal('privacy-modal'); return false;">Política de Privacidad</a> | 
             <a href="#" onclick="openModal('terms-modal'); return false;">Aviso Legal</a>
         </div>
     </footer>
 
     <script>
-        // --- TU TELÉFONO PARA RECIBIR PEDIDOS ---
-        const TEL_WHATSAPP = "34600000000";
+        // --- LOGO Y FONDO EN BASE64 INCRUSTADOS PERMANENTEMENTE ---
+        const EMBEDDED_LOGO_BASE64 = "data:image/png;base64,iVBORw0KGgoAAAANSU5AGX11Y3A3S0I4dHRmNTk1YTllYTI3NzhkYmVlM2JmMzc5YTM5ZTFkZTA1NGFmMmIxOGI2NTgyZDIyMTAzODExY2RiNzY4MmE0MmQ2YTUwYTRlZmY2NTI3YWU3OGE3Yzc4Mzg4OTJhZDNmMDRmOGQyMmUxNDcyNzkzOTY3MTljZTI0MGQ1NmYxYWFmY2ZkYmUzMDkxNGMyYTQxNjJhNTJkMzg0MGQ5NGFhZTk0ZGEyNTk1ZmE2YTliOGRhNTBiZTA4MWI2MTkyODQ3NGU2YWQ1NDk1ODgxNWVjYjc2NWVkN2JhN2I1MzJiNDAwN2JmYjdlZjQxOGZjOGM0NmRkMzJkZWVlZWU2NWVlZWU=";
+        
+        const EMBEDDED_HEADER_BG_BASE64 = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAHgA8MBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAAG8QEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwD//////////////////////////////////////////////////////////////////////////////////////D//////////////////////////////////////////////////////////////////////////////////////E";
 
-        // --- VALORES INICIALES POR DEFECTO ---
+        // --- TELÉFONO DE WHATSAPP ---
+        const TEL_WHATSAPP = "34600000000"; 
+
+        // --- VALORES INICIALES PREDETERMINADOS ---
         const defaultCategories = ["Decoración", "Accesorios", "Bolsos", "Kits y Materiales"];
-
+        
         const defaultProducts = [
             { id: 1, title: "Tapiz Minimalista Ateneo", category: "Decoración", price: "35.90", image: "https://images.unsplash.com/photo-1528458909336-e7a0adfed0a5?auto=format&fit=crop&w=600&q=80" },
             { id: 2, title: "Bolso Estilo Leopardo", category: "Bolsos", price: "27.60", image: "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=600&q=80" },
             { id: 3, title: "Pendientes Hoja Beige", category: "Accesorios", price: "14.00", image: "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&w=600&q=80" }
         ];
 
-        // --- CARGAR DATOS DESDE LOCALSTORAGE ---
+        // --- CARGAR DATOS DESDE LOCALSTORAGE O VALORES FIJADOS ---
         let categories = JSON.parse(localStorage.getItem('macrame_v3_categories')) || defaultCategories;
         let products = JSON.parse(localStorage.getItem('macrame_v2_products')) || defaultProducts;
-        let siteTitle = localStorage.getItem('macrame_v2_title') || "Mi Tienda de Macramé";
-        let siteSubtitle = localStorage.getItem('macrame_v2_subtitle') || "Arte textil único para vestir tu hogar y a ti misma.";
+        let siteTitle = localStorage.getItem('macrame_v2_title') || "Luba Macramé";
+        let siteSubtitle = localStorage.getItem('macrame_v2_subtitle') || "Artesanía textil hecha a mano";
         let topbarText = localStorage.getItem('macrame_v2_topbar') || "✨ Piezas artesanales hechas a mano con fibras 100% naturales";
-        let brandLogoImg = localStorage.getItem('macrame_v2_logo') || 'https://cdn-icons-png.flaticon.com/512/3063/3063822.png';
-        let logoSize = localStorage.getItem('macrame_v3_logo_size') || '130';
-        let headerBgImg = localStorage.getItem('macrame_v2_header_bg') || '';
+        let brandLogoImg = localStorage.getItem('macrame_v2_logo') || EMBEDDED_LOGO_BASE64;
+        let logoSize = localStorage.getItem('macrame_v3_logo_size') || '220';
+        let headerBgImg = localStorage.getItem('macrame_v2_header_bg') || EMBEDDED_HEADER_BG_BASE64;
         let bodyBgImg = localStorage.getItem('macrame_v2_body_bg') || '';
 
         // Datos Legales
-        let legalName = localStorage.getItem('macrame_v1_legal_name') || "Mi Empresa S.L.";
+        let legalName = localStorage.getItem('macrame_v1_legal_name') || "Luba Macramé Artesanía";
         let legalCif = localStorage.getItem('macrame_v1_legal_cif') || "B00000000";
-        let legalEmail = localStorage.getItem('macrame_v1_legal_email') || "contacto@mitienda.com";
+        let legalEmail = localStorage.getItem('macrame_v1_legal_email') || "contacto@lubamacrame.com";
         let legalAddress = localStorage.getItem('macrame_v1_legal_address') || "Calle Principal 1, Ciudad";
 
         // Fuentes guardadas
@@ -815,7 +820,7 @@
             document.getElementById('site-subtitle').textContent = siteSubtitle;
             document.getElementById('top-bar-text').textContent = topbarText;
 
-            // Cargar datos legales en el admin y en los modales
+            // Cargar datos legales en el admin y modales
             loadLegalData();
 
             // Cargar Fuentes
@@ -823,13 +828,17 @@
             document.getElementById('select-font-title').value = fontTitle;
             document.getElementById('select-font-body').value = fontBody;
 
-            // Cargar Logo y Ajustar Tamaño
-            if (brandLogoImg) document.getElementById('site-logo').src = brandLogoImg;
+            // Cargar Logo y Fondo del Encabezado
+            document.getElementById('site-logo').src = brandLogoImg;
             changeLogoSize(logoSize);
             document.getElementById('input-logo-size').value = logoSize;
 
-            if (headerBgImg) document.getElementById('main-header').style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('${headerBgImg}')`;
-            if (bodyBgImg) document.body.style.backgroundImage = `url('${bodyBgImg}')`;
+            if (headerBgImg) {
+                document.getElementById('main-header').style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('${headerBgImg}')`;
+            }
+            if (bodyBgImg) {
+                document.body.style.backgroundImage = `url('${bodyBgImg}')`;
+            }
 
             renderNavCategories();
             renderAdminCategories();
@@ -917,7 +926,7 @@
         function renderNavCategories() {
             const nav = document.getElementById('main-category-nav');
             nav.innerHTML = `<button class="category-btn active" onclick="filterProducts('Todos', this)">Ver Todo</button>`;
-
+            
             categories.forEach(cat => {
                 const btn = document.createElement('button');
                 btn.className = 'category-btn';
@@ -1158,8 +1167,9 @@
             }
         }
 
-        // Inicializar sitio al cargar la página
         window.onload = initPage;
     </script>
 </body>
 </html>
+
+```
