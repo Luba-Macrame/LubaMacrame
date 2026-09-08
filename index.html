@@ -1,128 +1,1398 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tienda Macramé</title>
-    <!-- Supabase JS Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tienda de Macramé Artesanal</title>
+    <!-- Carga de Fuentes Elegantes desde Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Cinzel:wght@500;700&family=Inter:wght@300;400;600&family=Lora:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- FIREBASE SDKS -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
     <style>
-        :root { --primary: #8b5cf6; --bg: #f9fafb; --card: #ffffff; }
-        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #333; }
-        header { text-align: center; margin-bottom: 30px; }
-        h1 { margin: 0; color: #1f2937; }
-        p { color: #6b7280; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; }
-        .card { background: var(--card); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); padding: 15px; }
-        .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; }
-        .price { font-weight: bold; color: var(--primary); font-size: 1.2rem; }
-        .admin-panel { max-width: 600px; margin: 0 auto 40px auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; }
-        input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        button { background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; }
-        button:hover { opacity: 0.9; }
-        .delete-btn { background: #ef4444; margin-top: 10px; }
+        :root {
+            --bg-color: #fcfaf7;
+            --card-bg: #ffffff;
+            --primary: #8c6d58; /* Terracota suave */
+            --primary-dark: #6e5341;
+            --text-main: #2b2b2b;
+            --text-light: #666666;
+            --accent: #d98268;
+            --border: #ece6de;
+            --font-title: 'Playfair Display', serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+            --header-bg-img: url('https://i.ibb.co/L5hY8mN/macrame-header.jpg');
+            --body-bg-img: none;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--body-bg-img);
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            color: var(--text-main);
+            font-family: var(--font-body);
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* --- BARRA SUPERIOR DE ANUNCIOS --- */
+        .top-bar {
+            background-color: #2b2b2b;
+            color: #ffffff;
+            text-align: center;
+            padding: 7px 12px;
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        /* --- CABECERA ADAPTATIVA (HERO) CON LOGO --- */
+        header {
+            position: relative;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), var(--header-bg-img);
+            background-size: cover;
+            background-position: center;
+            color: #ffffff;
+            text-align: center;
+            padding: clamp(35px, 8vw, 70px) 15px;
+            margin-bottom: clamp(20px, 4vw, 40px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand-logo-container {
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        .brand-logo {
+            width: 130px;
+            height: auto;
+            max-width: 85vw;
+            object-fit: contain;
+            transition: transform 0.3s, width 0.2s ease;
+            filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.3));
+        }
+
+        .brand-logo:hover {
+            transform: scale(1.02);
+        }
+
+        header h1 {
+            font-family: var(--font-title);
+            font-size: clamp(1.8rem, 6vw, 3.2rem);
+            font-weight: 500;
+            margin-bottom: 8px;
+            line-height: 1.15;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: clamp(0.9rem, 2.8vw, 1.15rem);
+            max-width: 650px;
+            margin: 0 auto;
+            font-weight: 300;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            padding: 0 10px;
+        }
+
+        /* --- BOTÓN FLOTANTE EDICIÓN --- */
+        .btn-admin-toggle {
+            position: fixed;
+            bottom: 16px;
+            right: 16px;
+            background: #2b2b2b;
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+            z-index: 1000;
+            transition: all 0.3s;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-admin-toggle:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* --- PANEL DE ADMINISTRACIÓN --- */
+        #admin-panel {
+            display: none;
+            background: #ffffff;
+            padding: clamp(15px, 4vw, 30px);
+            max-width: 900px;
+            margin: 15px auto 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid var(--border);
+            width: 92%;
+        }
+
+        #admin-panel.active {
+            display: block;
+        }
+
+        #admin-panel h2 {
+            font-family: var(--font-title);
+            color: var(--primary);
+            margin-bottom: 18px;
+            font-size: clamp(1.3rem, 4vw, 1.8rem);
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .admin-section {
+            background: #fdfbf7;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .admin-section h3 {
+            font-size: 1rem;
+            margin-bottom: 12px;
+            color: var(--primary-dark);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 6px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+        }
+
+        .range-slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .range-slider-container input[type="range"] {
+            flex-grow: 1;
+            cursor: pointer;
+        }
+
+        .range-value {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary);
+            min-width: 45px;
+        }
+
+        .btn-submit {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 9px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 500;
+            width: 100%;
+            transition: background 0.3s;
+        }
+
+        .btn-submit:hover {
+            background: var(--primary-dark);
+        }
+
+        .category-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .category-item input {
+            flex-grow: 1;
+            padding: 6px 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .btn-cat-del {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* --- CATEGORÍAS / FILTROS SLIDER EN MÓVIL --- */
+        .categories-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            white-space: nowrap;
+            margin-bottom: clamp(20px, 4vw, 35px);
+            padding: 0 15px 5px;
+            scrollbar-width: none;
+        }
+
+        .categories-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+
+        .categories {
+            display: inline-flex;
+            justify-content: center;
+            gap: clamp(10px, 3vw, 20px);
+            min-width: 100%;
+        }
+
+        .category-btn {
+            background: none;
+            border: none;
+            font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+            padding: 6px 14px;
+            cursor: pointer;
+            color: var(--text-light);
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+            font-family: var(--font-body);
+            letter-spacing: 0.3px;
+            flex-shrink: 0;
+        }
+
+        .category-btn.active, .category-btn:hover {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+            font-weight: 600;
+        }
+
+        /* --- CATÁLOGO DE PRODUCTOS RESPONSIVO --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px 60px;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: clamp(15px, 3vw, 30px);
+        }
+
+        .product-card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+        }
+
+        .img-container {
+            width: 100%;
+            height: clamp(230px, 50vw, 320px);
+            overflow: hidden;
+            background-color: #f4f0eb;
+        }
+
+        .product-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .product-card:hover .product-img {
+            transform: scale(1.04);
+        }
+
+        .product-info {
+            padding: clamp(14px, 3.5vw, 20px);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .product-category {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #999;
+            letter-spacing: 1.2px;
+            margin-bottom: 6px;
+        }
+
+        .product-title {
+            font-family: var(--font-title);
+            font-size: clamp(1.1rem, 3.5vw, 1.3rem);
+            margin-bottom: 8px;
+            color: var(--text-main);
+            font-weight: 500;
+            line-height: 1.25;
+        }
+
+        .product-price {
+            font-size: clamp(1rem, 3vw, 1.15rem);
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 14px;
+        }
+
+        .btn-contact {
+            margin-top: auto;
+            display: inline-block;
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 9px 15px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-contact:hover, .btn-contact:active {
+            background: var(--primary);
+            color: #ffffff;
+        }
+
+        .btn-delete {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        .admin-mode .btn-delete {
+            display: block;
+        }
+
+        /* --- FOOTER Y ENLACES LEGALES --- */
+        footer {
+            text-align: center;
+            padding: 40px 15px 30px;
+            background: #ffffff;
+            border-top: 1px solid var(--border);
+            font-size: 0.8rem;
+            color: #777;
+        }
+
+        .legal-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .legal-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.78rem;
+            transition: color 0.2s;
+        }
+
+        .legal-links a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        /* --- BANNER DE COOKIES (AEPD ESPAÑA) --- */
+        #cookie-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #ffffff;
+            box-shadow: 0 -4px 25px rgba(0,0,0,0.15);
+            padding: 20px;
+            z-index: 9999;
+            display: none;
+            border-top: 3px solid var(--primary);
+        }
+
+        .cookie-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        @media (min-width: 768px) {
+            .cookie-container {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+        }
+
+        .cookie-text {
+            font-size: 0.82rem;
+            color: #444;
+            line-height: 1.4;
+        }
+
+        .cookie-text a {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        .cookie-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            width: 100%;
+            justify-content: center;
+        }
+
+        @media (min-width: 768px) {
+            .cookie-buttons {
+                width: auto;
+            }
+        }
+
+        .btn-cookie {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--primary);
+            transition: all 0.2s;
+            flex: 1;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .btn-cookie-accept {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-cookie-accept:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-cookie-reject {
+            background: #ffffff;
+            color: var(--text-main);
+            border-color: #ccc;
+        }
+
+        .btn-cookie-config {
+            background: transparent;
+            color: var(--primary);
+        }
+
+        /* --- MODAL PARA TEXTOS LEGALES Y CONFIGURACIÓN DE COOKIES --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 10000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 700px;
+            width: 100%;
+            max-height: 85vh;
+            border-radius: 8px;
+            padding: 25px;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .modal-body h2 {
+            font-family: var(--font-title);
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .modal-body h3 {
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-size: 1rem;
+            color: var(--primary-dark);
+        }
+
+        .modal-body p, .modal-body ul {
+            font-size: 0.85rem;
+            color: #444;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .modal-body ul {
+            padding-left: 20px;
+        }
+
+        .cookie-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        @media (max-width: 580px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            }
+
+            .product-info {
+                padding: 12px 10px;
+            }
+
+            .btn-contact {
+                padding: 8px 10px;
+                font-size: 0.7rem;
+            }
+
+            .categories {
+                justify-content: flex-start;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1 id="site-title">Tú Tienda de Macramé</h1>
-        <p id="site-subtitle">NUDO A NUDO, TEJEMOS HISTORIAS PARA TI</p>
+    <!-- BARRA DE AVISOS -->
+    <div class="top-bar" id="top-bar-text">✨ Piezas artesanales hechas a mano</div>
+
+    <!-- ENCABEZADO PRINCIPAL (HERO) CON LOGO -->
+    <header id="main-header">
+        <div class="brand-logo-container">
+            <img id="site-logo" class="brand-logo" src="https://i.ibb.co/L5hY8mN/macrame-header.jpg" alt="Logo Marca">
+        </div>
+        <h1 id="site-title">Tu Tienda de Macramé</h1>
+        <p id="site-subtitle">NUDO A NUDO, TEJEMOS HISTORIAS PARA TI.</p>
     </header>
 
-    <!-- Panel para agregar productos directamente a Supabase -->
-    <div class="admin-panel">
-        <h3>➕ Añadir Nuevo Producto (Nube)</h3>
-        <form id="product-form">
-            <div class="form-group">
-                <label>Nombre del producto</label>
-                <input type="text" id="p-title" required placeholder="Ej. Tapiz Hoja">
+    <!-- BOTÓN FLOTANTE MODO EDICIÓN -->
+    <button class="btn-admin-toggle" onclick="toggleAdmin()">⚙️ <span>Modificar Web</span></button>
+
+    <!-- PANEL DE ADMINISTRACIÓN / EDICIÓN COMPLETO -->
+    <section id="admin-panel">
+        <h2>Panel de Personalización</h2>
+        
+        <div class="admin-grid">
+            <!-- 1. EDITAR TEXTOS Y CONTACTO GLOBAL -->
+            <div class="admin-section">
+                <h3>1. Textos y Contacto Principal</h3>
+                <div class="form-group">
+                    <label>Título Principal:</label>
+                    <input type="text" id="input-title" placeholder="Ej. Fruto de Macramé">
+                </div>
+                <div class="form-group">
+                    <label>Subtítulo / Eslogan:</label>
+                    <input type="text" id="input-subtitle" placeholder="Ej. Decoración y accesorios tejidos a mano">
+                </div>
+                <div class="form-group">
+                    <label>Barra de Anuncios (Arriba):</label>
+                    <input type="text" id="input-topbar" placeholder="Ej. Envíos gratis en compras superiores a 50€">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono de WhatsApp (con prefijo):</label>
+                    <input type="text" id="input-phone" placeholder="Ej. 34600000000">
+                </div>
+                <div class="form-group">
+                    <label>Usuario / Enlace de Instagram:</label>
+                    <input type="text" id="input-instagram" placeholder="Ej. tu_usuario o https://instagram.com/tu_usuario">
+                </div>
+                <button class="btn-submit" onclick="updateTexts()">Guardar Configuración General</button>
             </div>
-            <div class="form-group">
-                <label>Precio (€)</label>
-                <input type="number" step="0.01" id="p-price" required placeholder="25.00">
+
+            <!-- 2. EDITAR TIPOGRAFÍAS -->
+            <div class="admin-section">
+                <h3>2. Estilos de Letra (Tipografía)</h3>
+                <div class="form-group">
+                    <label>Fuente para Títulos y Encabezados:</label>
+                    <select id="select-font-title">
+                        <option value="'Playfair Display', serif">Playfair Display (Elegante & Clásica)</option>
+                        <option value="'Lora', serif">Lora (Orgánica & Editorial)</option>
+                        <option value="'Cinzel', serif">Cinzel (Vintage & Sofisticada)</option>
+                        <option value="'Caveat', cursive">Caveat (Manuscrita Artesanal)</option>
+                        <option value="'Montserrat', sans-serif">Montserrat (Moderna & Limpia)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Fuente para Texto General y Botones:</label>
+                    <select id="select-font-body">
+                        <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta Sans (Moderna & Equilibrada)</option>
+                        <option value="'Inter', sans-serif">Inter (Mínima & Neutra)</option>
+                        <option value="'Montserrat', sans-serif">Montserrat (Geométrica)</option>
+                        <option value="'Lora', serif">Lora (Estilo Libro Serif)</option>
+                    </select>
+                </div>
+                <button class="btn-submit" onclick="saveFonts()">Guardar Tipografías</button>
             </div>
-            <div class="form-group">
-                <label>URL de la imagen (Directa de ImgBB)</label>
-                <input type="url" id="p-image" required placeholder="https://i.ibb.co/xxxx/foto.png">
+
+            <!-- 3. EDITAR LOGO Y FONDOS CON ENLACES IMGBB O ARCHIVOS -->
+            <div class="admin-section">
+                <h3>3. Logo e Imágenes (ImgBB o Archivo)</h3>
+                <div class="form-group">
+                    <label>Logo de la Marca (Enlace ImgBB o Archivo):</label>
+                    <input type="text" id="input-logo-url" placeholder="Pega Enlace Directo ImgBB (https://i.ibb.co/...)">
+                    <input type="file" id="input-logo" accept="image/*" style="margin-top: 5px;">
+                </div>
+                <div class="form-group">
+                    <label>Tamaño del Logo (Ancho max 800px):</label>
+                    <div class="range-slider-container">
+                        <input type="range" id="input-logo-size" min="30" max="800" value="130" oninput="changeLogoSize(this.value)">
+                        <span id="logo-size-val" class="range-value">130px</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Imagen de Encabezado (Header):</label>
+                    <input type="text" id="input-header-url" placeholder="Pega Enlace Directo ImgBB">
+                    <input type="file" id="input-header-bg" accept="image/*" style="margin-top: 5px;">
+                </div>
+                <div class="form-group">
+                    <label>Imagen de Fondo General (Opcional):</label>
+                    <input type="text" id="input-body-url" placeholder="Pega Enlace Directo ImgBB">
+                    <input type="file" id="input-body-bg" accept="image/*" style="margin-top: 5px;">
+                </div>
+                <button class="btn-submit" onclick="updateImages()">Aplicar Imágenes</button>
+                <button class="btn-submit" onclick="resetBodyBg()" style="background:#999; margin-top: 8px;">Quitar Fondo General</button>
             </div>
-            <button type="submit">Guardar en la Nube</button>
-        </form>
+
+            <!-- 4. EDITAR DATOS LEGALES (ESPAÑA - LSSI/RGPD) -->
+            <div class="admin-section">
+                <h3>4. Datos Legales (España - LSSI / RGPD)</h3>
+                <div class="form-group">
+                    <label>Nombre Titular / Razón Social:</label>
+                    <input type="text" id="legal-name" placeholder="Ej. María García / Macramé Artesanal S.L.">
+                </div>
+                <div class="form-group">
+                    <label>NIF / CIF:</label>
+                    <input type="text" id="legal-cif" placeholder="Ej. 12345678X">
+                </div>
+                <div class="form-group">
+                    <label>Dirección Fiscal / Ciudad:</label>
+                    <input type="text" id="legal-address" placeholder="Ej. Calle Mayor 10, Madrid">
+                </div>
+                <div class="form-group">
+                    <label>Email de Contacto Legal:</label>
+                    <input type="email" id="legal-email" placeholder="Ej. contacto@mitienda.com">
+                </div>
+                <div class="form-group">
+                    <label>Plazo de Entrega y Gastos:</label>
+                    <input type="text" id="legal-shipping" placeholder="Ej. 24-48h. Gastos 4.95€ (gratis > 50€)">
+                </div>
+                <button class="btn-submit" onclick="saveLegalData()">Guardar Datos Legales</button>
+            </div>
+
+            <!-- 5. EDITAR CATEGORÍAS / SECCIONES -->
+            <div class="admin-section">
+                <h3>5. Editar Secciones / Categorías</h3>
+                <div id="categories-admin-list"></div>
+                <button class="btn-submit" onclick="addCategoryField()" style="background:#6c757d; margin-bottom: 8px;">+ Añadir Otra Categoría</button>
+                <button class="btn-submit" onclick="saveCategories()">Guardar Cambios de Categorías</button>
+            </div>
+
+            <!-- 6. AÑADIR NUEVO PRODUCTO CON ENLACE IMGBB O ARCHIVO -->
+            <div class="admin-section" style="grid-column: 1 / -1;">
+                <h3>6. Subir Nuevo Artículo</h3>
+                <form id="add-product-form" onsubmit="addProduct(event)">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                        <div class="form-group">
+                            <label>Nombre del Producto:</label>
+                            <input type="text" id="p-title" required placeholder="Ej. Tapiz Ateneo">
+                        </div>
+                        <div class="form-group">
+                            <label>Categoría / Sección:</label>
+                            <select id="p-category" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Precio (€):</label>
+                            <input type="number" step="0.01" id="p-price" required placeholder="35.90">
+                        </div>
+                        <div class="form-group">
+                            <label>Canal de Contacto para Comprar:</label>
+                            <select id="p-contact-type">
+                                <option value="whatsapp">💬 WhatsApp</option>
+                                <option value="instagram">📸 Instagram DM</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Imagen (Pega enlace directo de ImgBB O adjunta archivo):</label>
+                            <input type="text" id="p-image-url" placeholder="Ej. https://i.ibb.co/xxxx/foto.jpg" style="margin-bottom: 6px;">
+                            <input type="file" id="p-image" accept="image/*">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit" style="margin-top: 8px;">Publicar Producto</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- NAVEGACIÓN Y FILTROS DESLIZABLES EN MÓVIL -->
+    <div class="categories-wrapper">
+        <nav class="categories" id="main-category-nav"></nav>
     </div>
 
-    <!-- Catálogo de productos -->
-    <div class="grid" id="products-container">
-        <p>Cargando productos desde Supabase...</p>
+    <!-- SECCIÓN DE PRODUCTOS -->
+    <main class="container">
+        <div class="products-grid" id="products-container"></div>
+    </main>
+
+    <!-- BANNER DE COOKIES (CUMPLIMIENTO AEPD) -->
+    <div id="cookie-banner">
+        <div class="cookie-container">
+            <div class="cookie-text">
+                Utilizamos cookies propias y de terceros para analizar el uso del sitio web y mejorar nuestros servicios. Puedes aceptarlas, rechazarlas o configurar tus preferencias. Más información en nuestra <a href="javascript:void(0)" onclick="openModal('cookies')">Política de Cookies</a>.
+            </div>
+            <div class="cookie-buttons">
+                <button class="btn-cookie btn-cookie-accept" onclick="acceptAllCookies()">Aceptar Todo</button>
+                <button class="btn-cookie btn-cookie-reject" onclick="rejectAllCookies()">Rechazar</button>
+                <button class="btn-cookie btn-cookie-config" onclick="openModal('cookie-config')">Configurar</button>
+            </div>
+        </div>
     </div>
+
+    <!-- MODAL DE CONTENIDOS LEGALES / CONFIGURACIÓN DE COOKIES -->
+    <div class="modal-overlay" id="legal-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div class="modal-body" id="modal-body-content"></div>
+        </div>
+    </div>
+
+    <!-- PIE DE PÁGINA (FOOTER) -->
+    <footer>
+        <div class="legal-links">
+            <a href="javascript:void(0)" onclick="openModal('aviso')">Aviso Legal</a> | 
+            <a href="javascript:void(0)" onclick="openModal('privacidad')">Política de Privacidad</a> | 
+            <a href="javascript:void(0)" onclick="openModal('cookies')">Política de Cookies</a> | 
+            <a href="javascript:void(0)" onclick="openModal('condiciones')">Condiciones de Venta</a> | 
+            <a href="javascript:void(0)" onclick="openModal('cookie-config')">Ajustes Cookies</a>
+        </div>
+        <p>&copy; <span id="year"></span> <span id="footer-title">Macramé Artesanal</span>. Todos los derechos reservados.</p>
+    </footer>
 
     <script>
-        // Inicialización de Supabase con tus credenciales
-        const SUPABASE_URL = 'https://vgxfitexnkvjijkamdcg.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_MtWly2tb9B_XdQrIWpau6g_VR-F-bS_';
-        const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // --- CONFIGURACIÓN DE FIREBASE (COMPARTIDA) ---
+        const firebaseConfig = {
+            databaseURL: "https://macrame-app-default-rtdb.firebaseio.com"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-        // Elementos del DOM
-        const container = document.getElementById('products-container');
-        const form = document.getElementById('product-form');
+        // --- VALORES INICIALES POR DEFECTO ---
+        const defaultCategories = ["Decoración", "Accesorios", "Bolsos", "Kits y Materiales"];
+        
+        const defaultProducts = [
+            { id: 1, title: "Tapiz Minimalista Ateneo", category: "Decoración", price: "35.90", image: "https://i.ibb.co/L5hY8mN/macrame-header.jpg", contactType: "whatsapp" },
+            { id: 2, title: "Bolso Estilo Leopardo", category: "Bolsos", price: "27.60", image: "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=600&q=80", contactType: "instagram" }
+        ];
 
-        // 1. Cargar productos desde Supabase al iniciar
-        async function fetchProducts() {
-            const { data, error } = await db.from('productos').select('*').order('created_at', { ascending: false });
-            
-            if (error) {
-                console.error('Error al cargar:', error);
-                container.innerHTML = '<p>Error al conectar con la base de datos.</p>';
-                return;
-            }
+        // --- ESTADO GLOBAL ---
+        let categories = defaultCategories;
+        let products = defaultProducts;
+        let siteTitle = "Mi Tienda de Macramé";
+        let siteSubtitle = "Arte textil único para vestir tu hogar y a ti misma.";
+        let topbarText = "✨ Piezas artesanales hechas a mano con fibras 100% naturales";
+        let brandLogoImg = 'https://i.ibb.co/L5hY8mN/macrame-header.jpg';
+        let logoSize = '130';
+        let headerBgImg = '';
+        let bodyBgImg = '';
 
-            if (data.length === 0) {
-                container.innerHTML = '<p>No hay productos guardados aún.</p>';
-                return;
-            }
+        let contactPhone = "34600000000";
+        let contactInstagram = "tu_cuenta_instagram";
 
-            container.innerHTML = data.map(p => `
-                <div class="card">
-                    <img src="${p.image}" alt="${p.title}" onerror="this.src='https://via.placeholder.com/200'">
-                    <h3>${p.title}</h3>
-                    <p class="price">${p.price} €</p>
-                    <button class="delete-btn" onclick="deleteProduct(${p.id})">Eliminar</button>
-                </div>
-            `).join('');
+        let fontTitle = "'Playfair Display', serif";
+        let fontBody = "'Plus Jakarta Sans', sans-serif";
+
+        let legalData = {
+            name: "Macramé Artesanal",
+            cif: "000000000",
+            address: "España",
+            email: "contacto@mitienda.com",
+            shipping: "Envíos en 24-72h. Gastos de envío 4.90€."
+        };
+
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // --- SINCRONIZACIÓN EN TIEMPO REAL CON FIREBASE ---
+        function initFirebaseSync() {
+            db.ref('storeData').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    if (data.categories) categories = data.categories;
+                    if (data.products) products = Object.values(data.products);
+                    if (data.siteTitle) siteTitle = data.siteTitle;
+                    if (data.siteSubtitle) siteSubtitle = data.siteSubtitle;
+                    if (data.topbarText) topbarText = data.topbarText;
+                    if (data.brandLogoImg) brandLogoImg = data.brandLogoImg;
+                    if (data.logoSize) logoSize = data.logoSize;
+                    if (data.headerBgImg) headerBgImg = data.headerBgImg;
+                    if (data.bodyBgImg !== undefined) bodyBgImg = data.bodyBgImg;
+                    if (data.contactPhone) contactPhone = data.contactPhone;
+                    if (data.contactInstagram) contactInstagram = data.contactInstagram;
+                    if (data.fontTitle) fontTitle = data.fontTitle;
+                    if (data.fontBody) fontBody = data.fontBody;
+                    if (data.legalData) legalData = data.legalData;
+                }
+                updateUI();
+            });
         }
 
-        // 2. Guardar nuevo producto en la nube
-        form.addEventListener('submit', async (e) => {
+        // --- ACTUALIZACIÓN DE LA INTERFAZ ---
+        function updateUI() {
+            document.getElementById('site-title').textContent = siteTitle;
+            document.getElementById('footer-title').textContent = siteTitle;
+            document.getElementById('site-subtitle').textContent = siteSubtitle;
+            document.getElementById('top-bar-text').textContent = topbarText;
+
+            document.getElementById('input-title').value = siteTitle;
+            document.getElementById('input-subtitle').value = siteSubtitle;
+            document.getElementById('input-topbar').value = topbarText;
+            document.getElementById('input-phone').value = contactPhone;
+            document.getElementById('input-instagram').value = contactInstagram;
+
+            applyFonts(fontTitle, fontBody);
+            document.getElementById('select-font-title').value = fontTitle;
+            document.getElementById('select-font-body').value = fontBody;
+
+            if (brandLogoImg) document.getElementById('site-logo').src = brandLogoImg;
+            changeLogoSize(logoSize, false);
+            document.getElementById('input-logo-size').value = logoSize;
+
+            if (headerBgImg) {
+                document.getElementById('main-header').style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('${headerBgImg}')`;
+            } else {
+                document.getElementById('main-header').style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), var(--header-bg-img)`;
+            }
+
+            if (bodyBgImg) {
+                document.body.style.backgroundImage = `url('${bodyBgImg}')`;
+            } else {
+                document.body.style.backgroundImage = 'none';
+            }
+
+            document.getElementById('legal-name').value = legalData.name;
+            document.getElementById('legal-cif').value = legalData.cif;
+            document.getElementById('legal-address').value = legalData.address;
+            document.getElementById('legal-email').value = legalData.email;
+            document.getElementById('legal-shipping').value = legalData.shipping;
+
+            renderNavCategories();
+            renderAdminCategories();
+            populateCategoryDropdown();
+            renderProducts(products);
+
+            checkCookieConsent();
+        }
+
+        // --- SISTEMA DE COOKIES ---
+        function checkCookieConsent() {
+            const consent = localStorage.getItem('macrame_cookie_consent');
+            if (!consent) {
+                document.getElementById('cookie-banner').style.display = 'block';
+            }
+        }
+
+        function acceptAllCookies() {
+            localStorage.setItem('macrame_cookie_consent', JSON.stringify({ analytics: true, marketing: true }));
+            document.getElementById('cookie-banner').style.display = 'none';
+        }
+
+        function rejectAllCookies() {
+            localStorage.setItem('macrame_cookie_consent', JSON.stringify({ analytics: false, marketing: false }));
+            document.getElementById('cookie-banner').style.display = 'none';
+        }
+
+        function saveCustomCookies() {
+            const analytics = document.getElementById('cookie-analytics').checked;
+            const marketing = document.getElementById('cookie-marketing').checked;
+            localStorage.setItem('macrame_cookie_consent', JSON.stringify({ analytics: analytics, marketing: marketing }));
+            document.getElementById('cookie-banner').style.display = 'none';
+            closeModal();
+            alert('Preferencias de cookies guardadas.');
+        }
+
+        // --- GESTIÓN DE MODALES LEGALES Y TEXTOS ESPAÑA ---
+        function openModal(type) {
+            const modal = document.getElementById('legal-modal');
+            const container = document.getElementById('modal-body-content');
+            
+            const savedConsent = JSON.parse(localStorage.getItem('macrame_cookie_consent')) || { analytics: false, marketing: false };
+
+            let html = '';
+
+            if (type === 'aviso') {
+                html = `
+                    <h2>Aviso Legal</h2>
+                    <p>En cumplimiento de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y de Comercio Electrónico (LSSI-CE), se facilitan los siguientes datos:</p>
+                    <h3>1. Datos Identificativos</h3>
+                    <p><strong>Titular:</strong> ${legalData.name}<br>
+                    <strong>NIF/CIF:</strong> ${legalData.cif}<br>
+                    <strong>Domicilio:</strong> ${legalData.address}<br>
+                    <strong>Email de Contacto:</strong> ${legalData.email}</p>
+                    <h3>2. Propiedad Intelectual</h3>
+                    <p>Todos los contenidos del sitio web (fotografías, diseños, marcas, textos) son propiedad exclusiva de ${legalData.name} o de terceros autorizados. Queda prohibida la reproducción parcial o total sin consentimiento previo.</p>
+                `;
+            } else if (type === 'privacidad') {
+                html = `
+                    <h2>Política de Privacidad (RGPD)</h2>
+                    <p>Conforme al Reglamento General de Protección de Datos (RGPD) y la LOPDGDD, le informamos sobre la gestión de sus datos personales:</p>
+                    <h3>Responsable del Tratamiento:</h3>
+                    <p>${legalData.name} (${legalData.email}).</p>
+                    <h3>Finalidad del Tratamiento:</h3>
+                    <p>Atender consultas, gestionar pedidos de productos artesanales solicitados por el cliente y emitir comunicaciones relacionadas.</p>
+                    <h3>Derechos ARCO+:</h3>
+                    <p>Tiene derecho a acceder, rectificar, suprimir, limitar u oponerse al tratamiento de sus datos mediante correo electrónico a <strong>${legalData.email}</strong>.</p>
+                `;
+            } else if (type === 'cookies') {
+                html = `
+                    <h2>Política de Cookies</h2>
+                    <p>Una cookie es un pequeño archivo que se almacena en su dispositivo al visitar una web.</p>
+                    <h3>Tipos de cookies que utilizamos:</h3>
+                    <ul>
+                        <li><strong>Cookies Técnicas (Necesarias):</strong> Permiten el funcionamiento básico de la web y el almacenamiento de sus preferencias.</li>
+                        <li><strong>Cookies Analíticas:</strong> Nos permiten medir el número de visitas y uso de los productos.</li>
+                    </ul>
+                    <p>Puede cambiar o gestionar sus preferencias en cualquier momento desde el enlace "Ajustes Cookies" en el pie de página.</p>
+                `;
+            } else if (type === 'condiciones') {
+                html = `
+                    <h2>Condiciones General de Venta</h2>
+                    <h3>1. Proceso de Compra</h3>
+                    <p>Las compras se formalizan a través de comunicación directa (WhatsApp / Instagram). Los precios mostrados incluyen impuestos aplicables en España.</p>
+                    <h3>2. Envíos y Plazos</h3>
+                    <p>${legalData.shipping}</p>
+                    <h3>3. Derecho de Desistimiento y Devoluciones</h3>
+                    <p>Conforme a la Ley General para la Defensa de los Consumidores y Usuarios, dispone de un plazo de 14 días naturales desde la recepción del producto para realizar devoluciones (excepto productos hechos a medida o personalizados).</p>
+                `;
+            } else if (type === 'cookie-config') {
+                html = `
+                    <h2>Configuración de Cookies</h2>
+                    <p>Gestione qué cookies desea activar o desactivar:</p>
+                    <div class="cookie-option">
+                        <div>
+                            <strong>Cookies Técnicas Básicas</strong><br>
+                            <small>Necesarias para el correcto funcionamiento de la web.</small>
+                        </div>
+                        <input type="checkbox" checked disabled>
+                    </div>
+                    <div class="cookie-option">
+                        <div>
+                            <strong>Cookies Analíticas</strong><br>
+                            <small>Nos ayudan a saber qué productos son los más populares.</small>
+                        </div>
+                        <input type="checkbox" id="cookie-analytics" ${savedConsent.analytics ? 'checked' : ''}>
+                    </div>
+                    <div class="cookie-option">
+                        <div>
+                            <strong>Cookies de Publicidad / Marketing</strong><br>
+                            <small>Para mostrar contenido o anuncios acordes a sus gustos.</small>
+                        </div>
+                        <input type="checkbox" id="cookie-marketing" ${savedConsent.marketing ? 'checked' : ''}>
+                    </div>
+                    <button class="btn-submit" style="margin-top:20px;" onclick="saveCustomCookies()">Guardar Preferencias</button>
+                `;
+            }
+
+            container.innerHTML = html;
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('legal-modal').style.display = 'none';
+        }
+
+        // --- GUARDAR DATOS LEGALES DESDE PANEL ADMIN ---
+        function saveLegalData() {
+            legalData.name = document.getElementById('legal-name').value || "Macramé Artesanal";
+            legalData.cif = document.getElementById('legal-cif').value || "000000000";
+            legalData.address = document.getElementById('legal-address').value || "España";
+            legalData.email = document.getElementById('legal-email').value || "contacto@mitienda.com";
+            legalData.shipping = document.getElementById('legal-shipping').value || "Envíos en 24-72h.";
+
+            db.ref('storeData/legalData').set(legalData);
+            alert('¡Datos legales guardados en la base de datos!');
+        }
+
+        // --- GESTIÓN DE FUENTES TIPOGRÁFICAS ---
+        function applyFonts(fTitle, fBody) {
+            document.documentElement.style.setProperty('--font-title', fTitle);
+            document.documentElement.style.setProperty('--font-body', fBody);
+        }
+
+        function saveFonts() {
+            fontTitle = document.getElementById('select-font-title').value;
+            fontBody = document.getElementById('select-font-body').value;
+
+            applyFonts(fontTitle, fontBody);
+
+            db.ref('storeData').update({
+                fontTitle: fontTitle,
+                fontBody: fontBody
+            });
+
+            alert('¡Tipografías guardadas!');
+        }
+
+        // --- CAMBIAR TAMAÑO DEL LOGO ---
+        function changeLogoSize(size, save = true) {
+            const logo = document.getElementById('site-logo');
+            logo.style.width = size + 'px';
+            document.getElementById('logo-size-val').textContent = size + 'px';
+            if (save) {
+                db.ref('storeData/logoSize').set(size);
+            }
+        }
+
+        // --- RENDERIZAR NAVEGACIÓN PRINCIPAL DE CATEGORÍAS ---
+        function renderNavCategories() {
+            const nav = document.getElementById('main-category-nav');
+            nav.innerHTML = `<button class="category-btn active" onclick="filterProducts('Todos', this)">Ver Todo</button>`;
+            
+            categories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'category-btn';
+                btn.textContent = cat;
+                btn.onclick = function() { filterProducts(cat, this); };
+                nav.appendChild(btn);
+            });
+        }
+
+        // --- RENDERIZAR LISTA DE CATEGORÍAS DENTRO DEL PANEL ADMIN ---
+        function renderAdminCategories() {
+            const container = document.getElementById('categories-admin-list');
+            container.innerHTML = '';
+
+            categories.forEach((cat, index) => {
+                const div = document.createElement('div');
+                div.className = 'category-item';
+                div.innerHTML = `
+                    <input type="text" class="cat-input" value="${cat}" placeholder="Nombre categoría">
+                    <button class="btn-cat-del" onclick="removeCategoryField(this)">✕</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function addCategoryField() {
+            const container = document.getElementById('categories-admin-list');
+            const div = document.createElement('div');
+            div.className = 'category-item';
+            div.innerHTML = `
+                <input type="text" class="cat-input" value="" placeholder="Nueva categoría">
+                <button class="btn-cat-del" onclick="removeCategoryField(this)">✕</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function removeCategoryField(btn) {
+            btn.parentElement.remove();
+        }
+
+        // --- GUARDAR NUEVAS CATEGORÍAS ---
+        function saveCategories() {
+            const inputs = document.querySelectorAll('.cat-input');
+            const newCatList = [];
+
+            inputs.forEach(input => {
+                const val = input.value.trim();
+                if(val !== "" && !newCatList.includes(val)) {
+                    newCatList.push(val);
+                }
+            });
+
+            if (newCatList.length === 0) {
+                alert('Debes tener al menos una categoría.');
+                return;
+            }
+
+            categories = newCatList;
+            db.ref('storeData/categories').set(categories);
+
+            renderNavCategories();
+            populateCategoryDropdown();
+            alert('¡Categorías guardadas!');
+        }
+
+        // --- LLENAR EL DESPLEGABLE DEL FORMULARIO DE PRODUCTOS ---
+        function populateCategoryDropdown() {
+            const select = document.getElementById('p-category');
+            select.innerHTML = '';
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                select.appendChild(option);
+            });
+        }
+
+        // --- CONSTRUIR ENLACES DE CONTACTO (WHATSAPP / INSTAGRAM) ---
+        function getContactUrl(type, productTitle, price) {
+            if (type === 'instagram') {
+                let cleanIg = contactInstagram.replace('https://instagram.com/', '').replace('https://www.instagram.com/', '').replace('@', '').trim();
+                return `https://instagram.com/${cleanIg}`;
+            } else {
+                const msg = encodeURIComponent(`Hola! Quería consultar disponibilidad para comprar "${productTitle}" (${price}€).`);
+                return `https://wa.me/${contactPhone.replace(/[^0-9]/g, '')}?text=${msg}`;
+            }
+        }
+
+        // --- DESPLEGAR PRODUCTOS ---
+        function renderProducts(items) {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+
+            if (!items || items.length === 0) {
+                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">No hay artículos disponibles en esta categoría.</p>';
+                return;
+            }
+
+            items.forEach(product => {
+                const contactType = product.contactType || 'whatsapp';
+                const targetUrl = getContactUrl(contactType, product.title, product.price);
+                const buttonText = contactType === 'instagram' ? '📸 Contactar por IG' : '💬 Comprar por WhatsApp';
+
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <button class="btn-delete" onclick="deleteProduct(${product.id})" title="Eliminar">&times;</button>
+                    <div class="img-container">
+                        <img src="${product.image}" alt="${product.title}" class="product-img">
+                    </div>
+                    <div class="product-info">
+                        <span class="product-category">${product.category}</span>
+                        <h3 class="product-title">${product.title}</h3>
+                        <p class="product-price">${product.price} €</p>
+                        <a href="${targetUrl}" target="_blank" class="btn-contact">${buttonText}</a>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // --- FILTRADO POR CATEGORÍA ---
+        function filterProducts(cat, btn) {
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+
+            if (cat === 'Todos') {
+                renderProducts(products);
+            } else {
+                renderProducts(products.filter(p => p.category === cat));
+            }
+        }
+
+        // --- MODO ADMIN ---
+        function toggleAdmin() {
+            document.body.classList.toggle('admin-mode');
+            const panel = document.getElementById('admin-panel');
+            panel.classList.toggle('active');
+            if(panel.classList.contains('active')) {
+                panel.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // --- ACTUALIZAR TEXTOS Y CANALES DE CONTACTO ---
+        function updateTexts() {
+            const title = document.getElementById('input-title').value;
+            const sub = document.getElementById('input-subtitle').value;
+            const top = document.getElementById('input-topbar').value;
+            const phone = document.getElementById('input-phone').value;
+            const ig = document.getElementById('input-instagram').value;
+
+            db.ref('storeData').update({
+                siteTitle: title || siteTitle,
+                siteSubtitle: sub || siteSubtitle,
+                topbarText: top || topbarText,
+                contactPhone: phone || contactPhone,
+                contactInstagram: ig || contactInstagram
+            });
+
+            alert('¡Configuración guardada!');
+        }
+
+        // --- ACTUALIZAR IMÁGENES Y LOGO (DESDE IMGBB O ARCHIVO) ---
+        function updateImages() {
+            const logoUrl = document.getElementById('input-logo-url').value;
+            const logoFile = document.getElementById('input-logo').files[0];
+
+            const headerUrl = document.getElementById('input-header-url').value;
+            const headerFile = document.getElementById('input-header-bg').files[0];
+
+            const bodyUrl = document.getElementById('input-body-url').value;
+            const bodyFile = document.getElementById('input-body-bg').files[0];
+
+            // LOGO
+            if (logoUrl) {
+                db.ref('storeData/brandLogoImg').set(logoUrl);
+            } else if (logoFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    db.ref('storeData/brandLogoImg').set(e.target.result);
+                };
+                reader.readAsDataURL(logoFile);
+            }
+
+            // HEADER
+            if (headerUrl) {
+                db.ref('storeData/headerBgImg').set(headerUrl);
+            } else if (headerFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    db.ref('storeData/headerBgImg').set(e.target.result);
+                };
+                reader.readAsDataURL(headerFile);
+            }
+
+            // FONDO GENERAL
+            if (bodyUrl) {
+                db.ref('storeData/bodyBgImg').set(bodyUrl);
+            } else if (bodyFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    db.ref('storeData/bodyBgImg').set(e.target.result);
+                };
+                reader.readAsDataURL(bodyFile);
+            }
+
+            alert('¡Imágenes aplicadas!');
+        }
+
+        function resetBodyBg() {
+            db.ref('storeData/bodyBgImg').set('');
+            alert('Fondo general restaurado.');
+        }
+
+        // --- SUBIR PRODUCTO CON ENLACE DE IMGBB O ARCHIVO ---
+        function addProduct(e) {
             e.preventDefault();
             const title = document.getElementById('p-title').value;
-            const price = parseFloat(document.getElementById('p-price').value);
-            const image = document.getElementById('p-image').value;
+            const category = document.getElementById('p-category').value;
+            const price = parseFloat(document.getElementById('p-price').value).toFixed(2);
+            const contactType = document.getElementById('p-contact-type').value;
 
-            const { error } = await db.from('productos').insert([{ title, price, image }]);
+            const imageUrl = document.getElementById('p-image-url').value;
+            const imageFile = document.getElementById('p-image').files[0];
 
-            if (error) {
-                alert('Error al guardar el producto: ' + error.message);
-            } else {
-                form.reset();
-                fetchProducts();
+            if (!imageUrl && !imageFile) {
+                alert('Por favor, pega un enlace de ImgBB o selecciona una foto desde tu dispositivo.');
+                return;
             }
-        });
 
-        // 3. Eliminar producto de la nube
-        async function deleteProduct(id) {
-            if (!confirm('¿Seguro que quieres borrar este producto?')) return;
-            const { error } = await db.from('productos').delete().eq('id', id);
-            
-            if (error) {
-                alert('Error al eliminar: ' + error.message);
-            } else {
-                fetchProducts();
+            const saveAndRender = (imgSrc) => {
+                const newId = Date.now();
+                const newProd = {
+                    id: newId,
+                    title: title,
+                    category: category,
+                    price: price,
+                    image: imgSrc,
+                    contactType: contactType
+                };
+                db.ref('storeData/products/' + newId).set(newProd);
+                document.getElementById('add-product-form').reset();
+                alert('¡Artículo publicado con éxito!');
+            };
+
+            if (imageUrl) {
+                saveAndRender(imageUrl);
+            } else if (imageFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    saveAndRender(e.target.result);
+                };
+                reader.readAsDataURL(imageFile);
             }
         }
 
-        // Carga inicial
-        fetchProducts();
+        // --- ELIMINAR PRODUCTO ---
+        function deleteProduct(id) {
+            if (confirm('¿Eliminar este artículo?')) {
+                db.ref('storeData/products/' + id).remove();
+            }
+        }
+
+        // Inicializar sincronización
+        initFirebaseSync();
     </script>
 </body>
 </html>
