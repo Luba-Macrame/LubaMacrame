@@ -736,30 +736,36 @@
         }
 
         async function fetchConfig() {
-            try {
-                const { data } = await _supabase.from('configuracion').select('*').eq('id', 'main').single();
-                if (data) {
-                    if (data.phone) { contactPhone = data.phone; document.getElementById('input-phone').value = data.phone; }
-                    if (data.title) { document.getElementById('site-title').textContent = data.title; document.getElementById('input-title').value = data.title; }
-                    if (data.subtitle) { document.getElementById('site-subtitle').textContent = data.subtitle; document.getElementById('input-subtitle').value = data.subtitle; }
-                    if (data.topbar) { document.getElementById('top-bar-text').textContent = data.topbar; document.getElementById('input-topbar').value = data.topbar; }
-                    if (data.font_title) { document.documentElement.style.setProperty('--font-title', data.font_title); document.getElementById('select-font-title').value = data.font_title; }
-                    if (data.font_body) { document.documentElement.style.setProperty('--font-body', data.font_body); document.getElementById('select-font-body').value = data.font_body; }
-                    if (data.logo_url) { document.getElementById('site-logo').src = data.logo_url; document.getElementById('input-logo-url').value = data.logo_url; }
-                    if (data.logo_size) { document.getElementById('site-logo').style.width = data.logo_size + 'px'; document.getElementById('input-logo-size').value = data.logo_size; }
-                    if (data.header_url) { document.getElementById('main-header').style.backgroundImage = `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('${data.header_url}')`; document.getElementById('input-header-url').value = data.header_url; }
-                    
-                    if (data.favicon_url) { 
-                        document.getElementById('site-favicon').href = data.favicon_url; 
-                        document.getElementById('input-favicon-url').value = data.favicon_url; 
-                    }
+           try {
+        const { data } = await _supabase.from('configuracion').select('*').eq('id', 'main').single();
+        if (data) {
+            if (data.phone) { contactPhone = data.phone; document.getElementById('input-phone').value = data.phone; }
+            if (data.title) { document.getElementById('site-title').textContent = data.title; document.getElementById('input-title').value = data.title; }
+            if (data.subtitle) { document.getElementById('site-subtitle').textContent = data.subtitle; document.getElementById('input-subtitle').value = data.subtitle; }
+            if (data.topbar) { document.getElementById('top-bar-text').textContent = data.topbar; document.getElementById('input-topbar').value = data.topbar; }
+            if (data.font_title) { document.documentElement.style.setProperty('--font-title', data.font_title); document.getElementById('select-font-title').value = data.font_title; }
+            if (data.font_body) { document.documentElement.style.setProperty('--font-body', data.font_body); document.getElementById('select-font-body').value = data.font_body; }
+            if (data.logo_url) { document.getElementById('site-logo').src = data.logo_url; document.getElementById('input-logo-url').value = data.logo_url; }
+            if (data.logo_size) { document.getElementById('site-logo').style.width = data.logo_size + 'px'; document.getElementById('input-logo-size').value = data.logo_size; }
+            if (data.header_url) { document.getElementById('main-header').style.backgroundImage = `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('${data.header_url}')`; document.getElementById('input-header-url').value = data.header_url; }
+            
+            if (data.favicon_url) { 
+                document.getElementById('site-favicon').href = data.favicon_url; 
+                document.getElementById('input-favicon-url').value = data.favicon_url; 
+            }
 
-                    if (data.show_prices !== undefined && data.show_prices !== null) {
-                        showPrices = data.show_prices === true || data.show_prices === 'true';
-                        document.getElementById('select-show-prices').value = showPrices ? "true" : "false";
-                    }
-                }
-            } catch (err) { console.error(err); }
+            // CORRECCIÓN: Asigna el valor guardado a la variable global y actualiza la vista
+            if (data.show_prices !== undefined && data.show_prices !== null) {
+                showPrices = data.show_prices === true || data.show_prices === 'true';
+                document.getElementById('select-show-prices').value = showPrices ? "true" : "false";
+            }
+
+            // Refresca la lista de productos si ya habían sido cargados
+            if (products.length > 0) {
+                renderProducts(products);
+            }
+        }
+    } catch (err) { console.error(err); }
         }
 
         async function fetchProducts() {
