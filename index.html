@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tienda de Macramé Artesanal</title>
-    <!-- Carga de Fuentes Elegantes desde Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Cinzel:wght@500;700&family=Inter:wght@300;400;600&family=Lora:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -87,10 +86,6 @@
             object-fit: contain;
             transition: transform 0.3s, width 0.2s ease;
             filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.3));
-        }
-
-        .brand-logo:hover {
-            transform: scale(1.02);
         }
 
         header h1 {
@@ -307,22 +302,51 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.06);
         }
 
+        /* CARRUSEL DE IMÁGENES */
         .img-container {
             width: 100%;
             height: clamp(230px, 50vw, 320px);
             overflow: hidden;
             background-color: #f4f0eb;
+            position: relative;
+        }
+
+        .carousel-track {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.4s ease-in-out;
         }
 
         .product-img {
-            width: 100%;
+            min-width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.5s;
+            flex-shrink: 0;
         }
 
-        .product-card:hover .product-img {
-            transform: scale(1.04);
+        .carousel-indicators {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            z-index: 5;
+        }
+
+        .carousel-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            transition: all 0.3s;
+        }
+
+        .carousel-dot.active {
+            background: #ffffff;
+            transform: scale(1.3);
         }
 
         .product-info {
@@ -357,7 +381,6 @@
             margin-bottom: 10px;
         }
 
-        /* SELECTOR VISUAL DE COLORES (CIRCULOS) */
         .color-selector-container {
             margin-bottom: 14px;
             text-align: center;
@@ -453,7 +476,6 @@
         .btn-edit-product { background: #3b82f6; }
         .btn-delete-product { background: #dc3545; }
 
-        /* BANNER DE COOKIES */
         .cookie-banner {
             position: fixed;
             bottom: 0;
@@ -483,7 +505,6 @@
             font-weight: 600;
         }
 
-        /* PIE DE PÁGINA / DATOS EMPRESA */
         footer {
             text-align: center;
             padding: 40px 15px 30px;
@@ -533,48 +554,45 @@
 
     <button id="admin-toggle-btn" class="btn-admin-toggle" onclick="toggleAdmin()">⚙️ <span>Modificar Web</span></button>
 
-    <!-- PANEL DE ADMINISTRACIÓN COMPLETO -->
     <section id="admin-panel">
         <h2>Panel de Personalización</h2>
         
         <div class="admin-grid">
-            <!-- 1. TEXTOS -->
             <div class="admin-section">
                 <h3>1. Textos y Contacto Principal</h3>
                 <div class="form-group">
                     <label>Título Principal:</label>
-                    <input type="text" id="input-title" placeholder="Ej. Fruto de Macramé">
+                    <input type="text" id="input-title">
                 </div>
                 <div class="form-group">
                     <label>Subtítulo / Eslogan:</label>
-                    <input type="text" id="input-subtitle" placeholder="Ej. Decoración y accesorios tejidos a mano">
+                    <input type="text" id="input-subtitle">
                 </div>
                 <div class="form-group">
                     <label>Barra de Anuncios (Arriba):</label>
-                    <input type="text" id="input-topbar" placeholder="Ej. Envíos gratis en compras superiores a 50€">
+                    <input type="text" id="input-topbar">
                 </div>
                 <div class="form-group">
-                    <label>Teléfono de WhatsApp (con prefijo):</label>
-                    <input type="text" id="input-phone" placeholder="Ej. 34600000000">
+                    <label>Teléfono de WhatsApp:</label>
+                    <input type="text" id="input-phone">
                 </div>
                 <button class="btn-submit" onclick="updateTexts()">Guardar Textos</button>
             </div>
 
-            <!-- 2. TIPOGRAFÍAS -->
             <div class="admin-section">
                 <h3>2. Estilos de Letra</h3>
                 <div class="form-group">
                     <label>Fuente para Títulos:</label>
                     <select id="select-font-title">
-                        <option value="'Playfair Display', serif">Playfair Display (Elegante)</option>
-                        <option value="'Lora', serif">Lora (Orgánica)</option>
-                        <option value="'Cinzel', serif">Cinzel (Vintage)</option>
-                        <option value="'Caveat', cursive">Caveat (Manuscrita)</option>
-                        <option value="'Montserrat', sans-serif">Montserrat (Moderna)</option>
+                        <option value="'Playfair Display', serif">Playfair Display</option>
+                        <option value="'Lora', serif">Lora</option>
+                        <option value="'Cinzel', serif">Cinzel</option>
+                        <option value="'Caveat', cursive">Caveat</option>
+                        <option value="'Montserrat', sans-serif">Montserrat</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Fuente para Texto General:</label>
+                    <label>Fuente General:</label>
                     <select id="select-font-body">
                         <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta Sans</option>
                         <option value="'Inter', sans-serif">Inter</option>
@@ -584,64 +602,59 @@
                 <button class="btn-submit" onclick="saveFonts()">Guardar Tipografías</button>
             </div>
 
-            <!-- 3. IMÁGENES DE DISEÑO -->
             <div class="admin-section">
                 <h3>3. Logo e Imágenes</h3>
                 <div class="form-group">
-                    <label>Logo de la Marca (Enlace ImgBB):</label>
-                    <input type="text" id="input-logo-url" placeholder="https://i.ibb.co/...">
+                    <label>Logo de la Marca (URL):</label>
+                    <input type="text" id="input-logo-url">
                 </div>
                 <div class="form-group">
-                    <label>Tamaño del Logo (px):</label>
+                    <label>Tamaño Logo (px):</label>
                     <div class="range-slider-container">
                         <input type="range" id="input-logo-size" min="30" max="400" value="130" oninput="changeLogoSize(this.value)">
-                        <span id="logo-size-val" class="range-value">230px</span>
+                        <span id="logo-size-val" class="range-value">130px</span>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Imagen del Header (Enlace ImgBB):</label>
-                    <input type="text" id="input-header-url" placeholder="https://i.ibb.co/...">
+                    <label>Imagen Header (URL):</label>
+                    <input type="text" id="input-header-url">
                 </div>
                 <button class="btn-submit" onclick="updateDesignImages()">Aplicar Imágenes</button>
             </div>
 
-            <!-- 4. SUBIR O EDITAR PRODUCTO EN SUPABASE -->
             <div class="admin-section" style="grid-column: 1 / -1;">
-                <h3 id="form-product-heading">4. Subir Nuevo Producto (Supabase)</h3>
+                <h3 id="form-product-heading">4. Subir / Editar Producto</h3>
                 <form id="add-product-form" onsubmit="saveProduct(event)">
                     <input type="hidden" id="p-id">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
                         <div class="form-group">
                             <label>Nombre del Producto:</label>
-                            <input type="text" id="p-title" required placeholder="Ej. Tapiz Ateneo">
+                            <input type="text" id="p-title" required>
                         </div>
                         <div class="form-group">
-                            <label>Categoría / Sección:</label>
-                            <input type="text" id="p-category" required placeholder="Ej. Decoración">
+                            <label>Categoría:</label>
+                            <input type="text" id="p-category" required>
                         </div>
                         <div class="form-group">
                             <label>Precio (€):</label>
-                            <input type="number" step="0.01" id="p-price" required placeholder="35.90">
+                            <input type="number" step="0.01" id="p-price" required>
                         </div>
                         <div class="form-group">
-                            <label>Colores Disponibles (Separados por comas):</label>
-                            <input type="text" id="p-colors" placeholder="Ej. Blanco, Beige, Mostaza, Terracota">
-                        </div>
-                        <div class="form-group">
-                            <label>Canal de Contacto:</label>
-                            <select id="p-contact-type">
-                                <option value="whatsapp">💬 WhatsApp</option>
-                                <option value="instagram">📸 Instagram</option>
-                            </select>
+                            <label>Colores (separados por comas):</label>
+                            <input type="text" id="p-colors" placeholder="Ej. Blanco, Azul, Rojo">
                         </div>
                         <div class="form-group" style="grid-column: 1 / -1;">
-                            <label>Enlace Directo de la Imagen (ImgBB):</label>
-                            <input type="url" id="p-image-url" required placeholder="https://i.ibb.co/xxxx/foto.jpg">
+                            <label>Fotos Carrusel General (URLs separadas por comas):</label>
+                            <input type="text" id="p-image-url" required placeholder="https://img1.jpg, https://img2.jpg">
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Fotos por Color (Formato: Color=URL, separados por coma):</label>
+                            <input type="text" id="p-color-images" placeholder="Ej. Blanco=https://foto-blanca.jpg, Azul=https://foto-azul.jpg">
                         </div>
                     </div>
                     <div style="display: flex; gap: 10px; margin-top: 8px;">
-                        <button type="submit" class="btn-submit" id="btn-save-product">Publicar en Supabase</button>
-                        <button type="button" class="btn-submit" id="btn-cancel-edit" style="background: #777; display: none;" onclick="resetProductForm()">Cancelar Edición</button>
+                        <button type="submit" class="btn-submit" id="btn-save-product">Publicar Producto</button>
+                        <button type="button" class="btn-submit" id="btn-cancel-edit" style="background: #777; display: none;" onclick="resetProductForm()">Cancelar</button>
                     </div>
                 </form>
             </div>
@@ -656,44 +669,31 @@
         <div class="products-grid" id="products-container"></div>
     </main>
 
-    <!-- BANNER DE COOKIES -->
     <div id="cookie-banner" class="cookie-banner" style="display: none;">
-        <span>Utilizamos cookies para garantizar la mejor experiencia en nuestra web. Al continuar navegando, aceptas su uso.</span>
-        <button onclick="acceptCookies()">Aceptar Cookies</button>
+        <span>Utilizamos cookies para garantizar la mejor experiencia.</span>
+        <button onclick="acceptCookies()">Aceptar</button>
     </div>
 
-    <!-- PIE DE PÁGINA CON DATOS EMPRESA -->
     <footer>
         <div class="company-info">
             <h4>Luba Macramé Artesanal</h4>
-            <p>Empresa / Autónomo: <strong>Nombre Fiscal / Razón Social</strong> | NIF/CIF: <strong>00000000X</strong></p>
-            <p>Dirección: <strong>Calle / Ciudad / Código Postal / España</strong></p>
-            <p>Email de contacto: <strong>contacto@lubamacrame.com</strong></p>
+            <p>Empresa / Autónomo: <strong>Nombre Fiscal</strong> | NIF/CIF: <strong>00000000X</strong></p>
         </div>
-        <p>&copy; <span id="year"></span> Macramé Artesanal. Todos los derechos reservados.</p>
-        <div class="footer-links">
-            <a href="#">Aviso Legal</a>
-            <a href="#">Política de Privacidad</a>
-            <a href="#">Política de Cookies</a>
-        </div>
+        <p>&copy; <span id="year"></span> Macramé Artesanal.</p>
     </footer>
 
     <script>
-        // ==========================================
-        // DATOS DE CONEXIÓN SUPABASE
-        // ==========================================
         const SUPABASE_URL = "https://vgxfitexnkvjijkamdcg.supabase.co"; 
         const SUPABASE_ANON_KEY = "sb_publishable_MtWly2tb9B_XdQrIWpau6g_VR-F-bS_";
-
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let products = [];
-        let selectedColors = {}; // Guardar el color elegido de cada producto
+        let selectedColors = {}; 
+        let carouselIntervals = {};
         let contactPhone = "34600000000";
 
         document.getElementById('year').textContent = new Date().getFullYear();
 
-        // COMPROBAR COOKIES
         if (!localStorage.getItem('cookiesAccepted')) {
             document.getElementById('cookie-banner').style.display = 'flex';
         }
@@ -703,66 +703,54 @@
             document.getElementById('cookie-banner').style.display = 'none';
         }
 
-        // CONTROL ACCESO ADMINISTRADOR MEDIANTE URL (?admin=true)
         const urlParams = new URLSearchParams(window.location.search);
-        const isAdminUser = urlParams.get('admin') === 'true';
-
-        if (isAdminUser) {
+        if (urlParams.get('admin') === 'true') {
             document.getElementById('admin-toggle-btn').classList.add('visible');
         }
 
-        // DICCIONARIO PARA CONVERTIR NOMRES DE COLORES A VALORES CSS PINTABLES
         const colorMap = {
-            'blanco': '#ffffff',
-            'negro': '#222222',
-            'rojo': '#e63946',
-            'azul': '#1d3557',
-            'azul marino': '#000080',
-            'verde': '#2a9d8f',
-            'amarillo': '#e9c46a',
-            'rosa': '#f4a261',
-            'beige': '#f5f5dc',
-            'crudo': '#fdf5e6',
-            'mostaza': '#e3a857',
-            'terracota': '#cb6d51',
-            'gris': '#888888',
-            'morado': '#800080',
-            'lila': '#c8a2c8',
-            'naranja': '#f8961e',
-            'marrón': '#7f4f24',
-            'marron': '#7f4f24'
+            'blanco': '#ffffff', 'negro': '#222222', 'rojo': '#e63946',
+            'azul': '#1d3557', 'azul marino': '#000080', 'verde': '#2a9d8f',
+            'amarillo': '#e9c46a', 'rosa': '#f4a261', 'beige': '#f5f5dc',
+            'crudo': '#fdf5e6', 'mostaza': '#e3a857', 'terracota': '#cb6d51',
+            'gris': '#888888', 'morado': '#800080', 'lila': '#c8a2c8',
+            'naranja': '#f8961e', 'marrón': '#7f4f24', 'marron': '#7f4f24'
         };
 
         function getColorCode(colorName) {
             const cleanName = colorName.trim().toLowerCase();
-            if (cleanName.startsWith('#')) return cleanName;
-            return colorMap[cleanName] || cleanName;
+            return cleanName.startsWith('#') ? cleanName : (colorMap[cleanName] || cleanName);
         }
 
-        // CARGAR PRODUCTOS DESDE SUPABASE
-        async function fetchProducts() {
+        async function fetchConfig() {
             try {
-                const { data, error } = await _supabase
-                    .from('productos')
-                    .select('*')
-                    .order('id', { ascending: false });
-
-                if (error) {
-                    console.error("Error al cargar datos:", error);
-                } else {
-                    products = data || [];
-                    renderProducts(products);
-                    renderCategoriesNav();
+                const { data } = await _supabase.from('configuracion').select('*').eq('id', 'main').single();
+                if (data) {
+                    if (data.phone) { contactPhone = data.phone; document.getElementById('input-phone').value = data.phone; }
+                    if (data.title) { document.getElementById('site-title').textContent = data.title; document.getElementById('input-title').value = data.title; }
+                    if (data.subtitle) { document.getElementById('site-subtitle').textContent = data.subtitle; document.getElementById('input-subtitle').value = data.subtitle; }
+                    if (data.topbar) { document.getElementById('top-bar-text').textContent = data.topbar; document.getElementById('input-topbar').value = data.topbar; }
+                    if (data.font_title) { document.documentElement.style.setProperty('--font-title', data.font_title); document.getElementById('select-font-title').value = data.font_title; }
+                    if (data.font_body) { document.documentElement.style.setProperty('--font-body', data.font_body); document.getElementById('select-font-body').value = data.font_body; }
+                    if (data.logo_url) { document.getElementById('site-logo').src = data.logo_url; document.getElementById('input-logo-url').value = data.logo_url; }
+                    if (data.logo_size) { document.getElementById('site-logo').style.width = data.logo_size + 'px'; document.getElementById('input-logo-size').value = data.logo_size; }
+                    if (data.header_url) { document.getElementById('main-header').style.backgroundImage = `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('${data.header_url}')`; document.getElementById('input-header-url').value = data.header_url; }
                 }
-            } catch (err) {
-                console.error("Error de conexión con Supabase:", err);
+            } catch (err) { console.error(err); }
+        }
+
+        async function fetchProducts() {
+            const { data, error } = await _supabase.from('productos').select('*').order('id', { ascending: false });
+            if (!error) {
+                products = data || [];
+                renderProducts(products);
+                renderCategoriesNav();
             }
         }
 
         function renderCategoriesNav() {
             const nav = document.getElementById('main-category-nav');
             const uniqueCategories = ['Todos', ...new Set(products.map(p => p.category).filter(Boolean))];
-
             nav.innerHTML = '';
             uniqueCategories.forEach((cat, idx) => {
                 const btn = document.createElement('button');
@@ -776,25 +764,36 @@
         function filterProducts(cat, btn) {
             document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
             if(btn) btn.classList.add('active');
-
-            if (cat === 'Todos') {
-                renderProducts(products);
-            } else {
-                renderProducts(products.filter(p => p.category === cat));
-            }
+            renderProducts(cat === 'Todos' ? products : products.filter(p => p.category === cat));
         }
 
-        // DIBUJAR TARJETAS DE PRODUCTOS
+        function parseColorImages(str) {
+            const map = {};
+            if (!str) return map;
+            str.split(',').forEach(item => {
+                const parts = item.split('=');
+                if (parts.length === 2) {
+                    map[parts[0].trim().toLowerCase()] = parts[1].trim();
+                }
+            });
+            return map;
+        }
+
         function renderProducts(items) {
+            Object.values(carouselIntervals).forEach(clearInterval);
+            carouselIntervals = {};
+
             const container = document.getElementById('products-container');
             container.innerHTML = '';
 
-            if (!items || items.length === 0) {
-                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">No hay productos creados aún.</p>';
+            if (!items.length) {
+                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">No hay productos creados.</p>';
                 return;
             }
 
             items.forEach(product => {
+                const imagesList = (product.image || '').split(',').map(u => u.trim()).filter(Boolean);
+                
                 let colorsHtml = '';
                 if (product.colors) {
                     const colorArray = product.colors.split(',').map(c => c.trim()).filter(Boolean);
@@ -803,17 +802,13 @@
                             <div class="color-selector-container">
                                 <span class="color-label">Colores disponibles:</span>
                                 <div class="color-options">
-                                    ${colorArray.map(col => {
-                                        const bgValue = getColorCode(col);
-                                        const isSelected = selectedColors[product.id] === col;
-                                        return `
-                                            <span class="color-circle-sample ${isSelected ? 'selected' : ''}" 
-                                                  style="background-color: ${bgValue};"
-                                                  title="${col}" 
-                                                  onclick="selectColor(${product.id}, '${col}', this)">
-                                            </span>
-                                        `;
-                                    }).join('')}
+                                    ${colorArray.map(col => `
+                                        <span class="color-circle-sample ${selectedColors[product.id] === col ? 'selected' : ''}" 
+                                              style="background-color: ${getColorCode(col)};"
+                                              title="${col}" 
+                                              onclick="selectColor(${product.id}, '${col}', this)">
+                                        </span>
+                                    `).join('')}
                                 </div>
                             </div>
                         `;
@@ -822,73 +817,121 @@
 
                 const card = document.createElement('div');
                 card.className = 'product-card';
+                card.id = `product-card-${product.id}`;
                 card.innerHTML = `
                     <div class="admin-controls-card">
-                        <button class="btn-card-icon btn-edit-product" onclick='startEditProduct(${JSON.stringify(product)})' title="Editar Producto">✏️</button>
-                        <button class="btn-card-icon btn-delete-product" onclick="deleteProduct(${product.id})" title="Eliminar Producto">&times;</button>
+                        <button class="btn-card-icon btn-edit-product" onclick='startEditProduct(${JSON.stringify(product)})'>✏️</button>
+                        <button class="btn-card-icon btn-delete-product" onclick="deleteProduct(${product.id})">&times;</button>
                     </div>
                     <div class="img-container">
-                        <img src="${product.image}" alt="${product.title}" class="product-img">
+                        <div class="carousel-track" id="track-${product.id}">
+                            ${imagesList.map(url => `<img src="${url}" class="product-img">`).join('')}
+                        </div>
+                        <div class="carousel-indicators" id="dots-${product.id}">
+                            ${imagesList.map((_, i) => `<span class="carousel-dot ${i === 0 ? 'active' : ''}"></span>`).join('')}
+                        </div>
                     </div>
                     <div class="product-info">
                         <span class="product-category">${product.category || 'General'}</span>
                         <h3 class="product-title">${product.title}</h3>
                         <p class="product-price">${product.price} €</p>
                         ${colorsHtml}
-                        <button onclick="buyProduct(${product.id})" class="btn-contact" style="width: 100%; border: 1px solid var(--primary); cursor: pointer;">💬 Contacta por WhatsApp</button>
+                        <button onclick="buyProduct(${product.id})" class="btn-contact" style="width: 100%; border: 1px solid var(--primary); cursor: pointer;">💬 Contactar por WhatsApp</button>
                     </div>
                 `;
                 container.appendChild(card);
+
+                if (imagesList.length > 1) {
+                    startAutoSlide(product.id, imagesList.length);
+                }
             });
         }
 
-        // MARCAR UN COLOR SELECCIONADO POR EL USUARIO
+        function startAutoSlide(productId, totalImages) {
+            let currentIndex = 0;
+            carouselIntervals[productId] = setInterval(() => {
+                currentIndex = (currentIndex + 1) % totalImages;
+                moveToSlide(productId, currentIndex);
+            }, 5000);
+        }
+
+        function moveToSlide(productId, index) {
+            const track = document.getElementById(`track-${productId}`);
+            const dots = document.querySelectorAll(`#dots-${productId} .carousel-dot`);
+            if (track) {
+                track.style.transform = `translateX(-${index * 100}%)`;
+            }
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+        }
+
         function selectColor(productId, colorName, element) {
             selectedColors[productId] = colorName;
             const parent = element.parentElement;
             parent.querySelectorAll('.color-circle-sample').forEach(tag => tag.classList.remove('selected'));
             element.classList.add('selected');
+
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const colorImages = parseColorImages(product.color_images);
+            const specificImg = colorImages[colorName.toLowerCase()];
+
+            if (specificImg) {
+                if (carouselIntervals[productId]) {
+                    clearInterval(carouselIntervals[productId]);
+                }
+                const track = document.getElementById(`track-${productId}`);
+                const dots = document.getElementById(`dots-${productId}`);
+                
+                track.innerHTML = `<img src="${specificImg}" class="product-img">`;
+                track.style.transform = `translateX(0)`;
+                dots.innerHTML = `<span class="carousel-dot active"></span>`;
+            }
         }
 
-        // ENVIAR WHATSAPP CON EL COLOR ELEGIDO
         function buyProduct(productId) {
             const product = products.find(p => p.id === productId);
             if (!product) return;
 
-            let colorText = "";
-            if (selectedColors[productId]) {
-                colorText = ` en color "${selectedColors[productId]}"`;
-            } else if (product.colors) {
-                colorText = ` (Colores disp: ${product.colors})`;
+            let colorText = selectedColors[productId] ? ` en color "${selectedColors[productId]}"` : (product.colors ? ` (Colores: ${product.colors})` : '');
+            const cleanPhone = (contactPhone || "").replace(/\D/g, '');
+            if (!cleanPhone) {
+                alert("Configura un número de WhatsApp en el panel de control.");
+                return;
             }
 
             const msg = encodeURIComponent(`Hola! Me interesa consultar disponibilidad para comprar "${product.title}" (${product.price}€)${colorText}.`);
-            window.open(`https://wa.me/${contactPhone}?text=${msg}`, '_blank');
+            window.open(`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${msg}`, '_blank');
         }
 
-        // EDITAR TEXTOS DE LA PÁGINA
-        function updateTexts() {
-            const title = document.getElementById('input-title').value;
-            const sub = document.getElementById('input-subtitle').value;
-            const top = document.getElementById('input-topbar').value;
-            const phone = document.getElementById('input-phone').value;
+        async function updateTexts() {
+            const payload = {
+                id: 'main',
+                title: document.getElementById('input-title').value,
+                subtitle: document.getElementById('input-subtitle').value,
+                topbar: document.getElementById('input-topbar').value,
+                phone: document.getElementById('input-phone').value
+            };
 
-            if(title) document.getElementById('site-title').textContent = title;
-            if(sub) document.getElementById('site-subtitle').textContent = sub;
-            if(top) document.getElementById('top-bar-text').textContent = top;
-            if(phone) contactPhone = phone;
-
-            alert('¡Textos actualizados!');
+            const { error } = await _supabase.from('configuracion').upsert([payload]);
+            if (!error) {
+                alert('Textos actualizados');
+                fetchConfig();
+            }
         }
 
-        function saveFonts() {
-            const fTitle = document.getElementById('select-font-title').value;
-            const fBody = document.getElementById('select-font-body').value;
-
-            document.documentElement.style.setProperty('--font-title', fTitle);
-            document.documentElement.style.setProperty('--font-body', fBody);
-
-            alert('¡Tipografía cambiada!');
+        async function saveFonts() {
+            const { error } = await _supabase.from('configuracion').upsert([{
+                id: 'main',
+                font_title: document.getElementById('select-font-title').value,
+                font_body: document.getElementById('select-font-body').value
+            }]);
+            if (!error) {
+                alert('Tipografías guardadas');
+                fetchConfig();
+            }
         }
 
         function changeLogoSize(size) {
@@ -896,52 +939,41 @@
             document.getElementById('logo-size-val').textContent = size + 'px';
         }
 
-        function updateDesignImages() {
-            const logoUrl = document.getElementById('input-logo-url').value;
-            const headerUrl = document.getElementById('input-header-url').value;
-
-            if (logoUrl) document.getElementById('site-logo').src = logoUrl;
-            if (headerUrl) {
-                document.getElementById('main-header').style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('${headerUrl}')`;
+        async function updateDesignImages() {
+            const { error } = await _supabase.from('configuracion').upsert([{
+                id: 'main',
+                logo_url: document.getElementById('input-logo-url').value,
+                logo_size: document.getElementById('input-logo-size').value,
+                header_url: document.getElementById('input-header-url').value
+            }]);
+            if (!error) {
+                alert('Imágenes de marca guardadas');
+                fetchConfig();
             }
-
-            alert('¡Imágenes aplicadas!');
         }
 
-        // CREAR O ACTUALIZAR PRODUCTO EN SUPABASE
         async function saveProduct(e) {
             e.preventDefault();
-
             const id = document.getElementById('p-id').value;
-            const title = document.getElementById('p-title').value;
-            const category = document.getElementById('p-category').value;
-            const price = parseFloat(document.getElementById('p-price').value);
-            const colors = document.getElementById('p-colors').value;
-            const contactType = document.getElementById('p-contact-type').value;
-            const imageUrl = document.getElementById('p-image-url').value;
-
             const productPayload = {
-                title: title,
-                category: category,
-                price: price,
-                colors: colors,
-                contact_type: contactType,
-                image: imageUrl
+                title: document.getElementById('p-title').value,
+                category: document.getElementById('p-category').value,
+                price: parseFloat(document.getElementById('p-price').value),
+                colors: document.getElementById('p-colors').value,
+                image: document.getElementById('p-image-url').value,
+                color_images: document.getElementById('p-color-images').value
             };
 
-            let response;
-            if (id) {
-                response = await _supabase.from('productos').update(productPayload).eq('id', id);
-            } else {
-                response = await _supabase.from('productos').insert([productPayload]);
-            }
+            const response = id 
+                ? await _supabase.from('productos').update(productPayload).eq('id', id)
+                : await _supabase.from('productos').insert([productPayload]);
 
-            if (response.error) {
-                alert("Error al guardar en Supabase: " + response.error.message);
-            } else {
-                alert(id ? "¡Producto editado correctamente!" : "¡Producto guardado en Supabase!");
+            if (!response.error) {
+                alert(id ? "Producto actualizado" : "Producto subido");
                 resetProductForm();
                 fetchProducts();
+            } else {
+                alert("Error: " + response.error.message);
             }
         }
 
@@ -951,32 +983,27 @@
             document.getElementById('p-category').value = product.category;
             document.getElementById('p-price').value = product.price;
             document.getElementById('p-colors').value = product.colors || '';
-            document.getElementById('p-contact-type').value = product.contact_type || 'whatsapp';
-            document.getElementById('p-image-url').value = product.image;
+            document.getElementById('p-image-url').value = product.image || '';
+            document.getElementById('p-color-images').value = product.color_images || '';
 
             document.getElementById('form-product-heading').textContent = "Editar Producto #" + product.id;
             document.getElementById('btn-save-product').textContent = "Guardar Cambios";
             document.getElementById('btn-cancel-edit').style.display = "block";
-
             document.getElementById('admin-panel').scrollIntoView({ behavior: 'smooth' });
         }
 
         function resetProductForm() {
             document.getElementById('add-product-form').reset();
             document.getElementById('p-id').value = '';
-            document.getElementById('form-product-heading').textContent = "4. Subir Nuevo Producto (Supabase)";
-            document.getElementById('btn-save-product').textContent = "Publicar en Supabase";
+            document.getElementById('form-product-heading').textContent = "4. Subir / Editar Producto";
+            document.getElementById('btn-save-product').textContent = "Publicar Producto";
             document.getElementById('btn-cancel-edit').style.display = "none";
         }
 
         async function deleteProduct(id) {
-            if (confirm('¿Eliminar este producto de la base de datos?')) {
+            if (confirm('¿Eliminar producto?')) {
                 const { error } = await _supabase.from('productos').delete().eq('id', id);
-                if (error) {
-                    alert("Error al eliminar: " + error.message);
-                } else {
-                    fetchProducts();
-                }
+                if (!error) fetchProducts();
             }
         }
 
@@ -984,11 +1011,10 @@
             document.body.classList.toggle('admin-mode');
             const panel = document.getElementById('admin-panel');
             panel.classList.toggle('active');
-            if(panel.classList.contains('active')) {
-                panel.scrollIntoView({ behavior: 'smooth' });
-            }
+            if(panel.classList.contains('active')) panel.scrollIntoView({ behavior: 'smooth' });
         }
 
+        fetchConfig();
         fetchProducts();
     </script>
 </body>
