@@ -315,6 +315,27 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.06);
         }
 
+        /* Estilo para Tarjeta de Categoría Portada */
+        .category-cover-card {
+            cursor: pointer;
+        }
+
+        .category-cover-card .category-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.65);
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 10;
+            backdrop-filter: blur(4px);
+        }
+
         .img-container {
             width: 100%;
             height: clamp(230px, 50vw, 320px);
@@ -688,7 +709,6 @@
     <footer>
         <div class="company-info">
             <h4>Luba Macramé Artesanía</h4>
-           <!-- <p>Empresa / Autónomo: <strong>Nombre Fiscal</strong> | NIF/CIF: <strong>00000000X</strong></p> -->
         </div>
         <p>&copy; <span id="year"></span> Macramé Artesanal.</p>
     </footer>
@@ -699,6 +719,7 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let products = [];
+        let currentCategoryFilter = 'Todos';
         let selectedColors = {}; 
         let carouselIntervals = {};
         let contactPhone = "34600000000";
@@ -736,36 +757,34 @@
         }
 
         async function fetchConfig() {
-           try {
-        const { data } = await _supabase.from('configuracion').select('*').eq('id', 'main').single();
-        if (data) {
-            if (data.phone) { contactPhone = data.phone; document.getElementById('input-phone').value = data.phone; }
-            if (data.title) { document.getElementById('site-title').textContent = data.title; document.getElementById('input-title').value = data.title; }
-            if (data.subtitle) { document.getElementById('site-subtitle').textContent = data.subtitle; document.getElementById('input-subtitle').value = data.subtitle; }
-            if (data.topbar) { document.getElementById('top-bar-text').textContent = data.topbar; document.getElementById('input-topbar').value = data.topbar; }
-            if (data.font_title) { document.documentElement.style.setProperty('--font-title', data.font_title); document.getElementById('select-font-title').value = data.font_title; }
-            if (data.font_body) { document.documentElement.style.setProperty('--font-body', data.font_body); document.getElementById('select-font-body').value = data.font_body; }
-            if (data.logo_url) { document.getElementById('site-logo').src = data.logo_url; document.getElementById('input-logo-url').value = data.logo_url; }
-            if (data.logo_size) { document.getElementById('site-logo').style.width = data.logo_size + 'px'; document.getElementById('input-logo-size').value = data.logo_size; }
-            if (data.header_url) { document.getElementById('main-header').style.backgroundImage = `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('${data.header_url}')`; document.getElementById('input-header-url').value = data.header_url; }
-            
-            if (data.favicon_url) { 
-                document.getElementById('site-favicon').href = data.favicon_url; 
-                document.getElementById('input-favicon-url').value = data.favicon_url; 
-            }
+            try {
+                const { data } = await _supabase.from('configuracion').select('*').eq('id', 'main').single();
+                if (data) {
+                    if (data.phone) { contactPhone = data.phone; document.getElementById('input-phone').value = data.phone; }
+                    if (data.title) { document.getElementById('site-title').textContent = data.title; document.getElementById('input-title').value = data.title; }
+                    if (data.subtitle) { document.getElementById('site-subtitle').textContent = data.subtitle; document.getElementById('input-subtitle').value = data.subtitle; }
+                    if (data.topbar) { document.getElementById('top-bar-text').textContent = data.topbar; document.getElementById('input-topbar').value = data.topbar; }
+                    if (data.font_title) { document.documentElement.style.setProperty('--font-title', data.font_title); document.getElementById('select-font-title').value = data.font_title; }
+                    if (data.font_body) { document.documentElement.style.setProperty('--font-body', data.font_body); document.getElementById('select-font-body').value = data.font_body; }
+                    if (data.logo_url) { document.getElementById('site-logo').src = data.logo_url; document.getElementById('input-logo-url').value = data.logo_url; }
+                    if (data.logo_size) { document.getElementById('site-logo').style.width = data.logo_size + 'px'; document.getElementById('input-logo-size').value = data.logo_size; }
+                    if (data.header_url) { document.getElementById('main-header').style.backgroundImage = `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('${data.header_url}')`; document.getElementById('input-header-url').value = data.header_url; }
+                    
+                    if (data.favicon_url) { 
+                        document.getElementById('site-favicon').href = data.favicon_url; 
+                        document.getElementById('input-favicon-url').value = data.favicon_url; 
+                    }
 
-            // CORRECCIÓN: Asigna el valor guardado a la variable global y actualiza la vista
-            if (data.show_prices !== undefined && data.show_prices !== null) {
-                showPrices = data.show_prices === true || data.show_prices === 'true';
-                document.getElementById('select-show-prices').value = showPrices ? "true" : "false";
-            }
+                    if (data.show_prices !== undefined && data.show_prices !== null) {
+                        showPrices = data.show_prices === true || data.show_prices === 'true';
+                        document.getElementById('select-show-prices').value = showPrices ? "true" : "false";
+                    }
 
-            // Refresca la lista de productos si ya habían sido cargados
-            if (products.length > 0) {
-                renderProducts(products);
-            }
-        }
-    } catch (err) { console.error(err); }
+                    if (products.length > 0) {
+                        renderMainView();
+                    }
+                }
+            } catch (err) { console.error(err); }
         }
 
         async function fetchProducts() {
@@ -777,8 +796,8 @@
 
             if (!error) {
                 products = data || [];
-                renderProducts(products);
                 renderCategoriesNav();
+                renderMainView();
             }
         }
 
@@ -786,19 +805,66 @@
             const nav = document.getElementById('main-category-nav');
             const uniqueCategories = ['Todos', ...new Set(products.map(p => p.category).filter(Boolean))];
             nav.innerHTML = '';
-            uniqueCategories.forEach((cat, idx) => {
+            uniqueCategories.forEach((cat) => {
                 const btn = document.createElement('button');
-                btn.className = `category-btn ${idx === 0 ? 'active' : ''}`;
-                btn.textContent = cat;
-                btn.onclick = () => filterProducts(cat, btn);
+                btn.className = `category-btn ${cat === currentCategoryFilter ? 'active' : ''}`;
+                btn.textContent = cat === 'Todos' ? 'Categorías' : cat;
+                btn.onclick = () => filterProducts(cat);
                 nav.appendChild(btn);
             });
         }
 
-        function filterProducts(cat, btn) {
-            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-            if(btn) btn.classList.add('active');
-            renderProducts(cat === 'Todos' ? products : products.filter(p => p.category === cat));
+        function filterProducts(cat) {
+            currentCategoryFilter = cat;
+            renderCategoriesNav();
+            renderMainView();
+        }
+
+        function renderMainView() {
+            if (currentCategoryFilter === 'Todos') {
+                renderCategoryCovers();
+            } else {
+                const filtered = products.filter(p => p.category === currentCategoryFilter);
+                renderProducts(filtered);
+            }
+        }
+
+        function renderCategoryCovers() {
+            Object.values(carouselIntervals).forEach(clearInterval);
+            carouselIntervals = {};
+
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+
+            const uniqueCategories = [...new Set(products.map(p => p.category).filter(Boolean))];
+
+            if (!uniqueCategories.length) {
+                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">No hay categorías creadas.</p>';
+                return;
+            }
+
+            uniqueCategories.forEach(cat => {
+                const firstProduct = products.find(p => p.category === cat);
+                if (!firstProduct) return;
+
+                const firstImg = (firstProduct.image || '').split(',')[0].trim();
+
+                const card = document.createElement('div');
+                card.className = 'product-card category-cover-card';
+                card.onclick = () => filterProducts(cat);
+
+                card.innerHTML = `
+                    <span class="category-badge">${cat}</span>
+                    <div class="img-container">
+                        <img src="${firstImg}" class="product-img">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">${cat}</h3>
+                        <button class="btn-contact" style="width: 100%; border: 1px solid var(--primary); cursor: pointer; margin-top: 10px;">Ver Productos</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
         }
 
         function parseColorImages(str) {
@@ -821,7 +887,7 @@
             container.innerHTML = '';
 
             if (!items.length) {
-                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">No hay productos creados.</p>';
+                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">No hay productos creados en esta categoría.</p>';
                 return;
             }
 
@@ -916,7 +982,7 @@
             const movedProduct = products.splice(fromIndex, 1)[0];
             products.splice(toIndex, 0, movedProduct);
 
-            renderProducts(products);
+            renderMainView();
 
             for (let i = 0; i < products.length; i++) {
                 await _supabase.from('productos').update({ position: i + 1 }).eq('id', products[i].id);
@@ -999,7 +1065,7 @@
             if (!error) {
                 alert('Configuración guardada correctamente');
                 fetchConfig();
-                renderProducts(products);
+                renderMainView();
             } else {
                 alert('Error al guardar: ' + error.message);
             }
@@ -1103,7 +1169,7 @@
             document.body.classList.toggle('admin-mode');
             const panel = document.getElementById('admin-panel');
             panel.classList.toggle('active');
-            renderProducts(products);
+            renderMainView();
             if(panel.classList.contains('active')) panel.scrollIntoView({ behavior: 'smooth' });
         }
 
