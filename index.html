@@ -81,7 +81,7 @@
         }
 
         .brand-logo {
-            width: 230px;
+            width: 130px;
             height: auto;
             max-width: 85vw;
             object-fit: contain;
@@ -357,7 +357,6 @@
             margin-bottom: 10px;
         }
 
-        /* ESTILOS DE SELECTOR DE COLORES EN PRODUCTO */
         .color-selector-container {
             margin-bottom: 14px;
             text-align: center;
@@ -366,7 +365,7 @@
         .color-label {
             font-size: 0.72rem;
             color: var(--text-light);
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             display: block;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -375,26 +374,31 @@
         .color-options {
             display: flex;
             justify-content: center;
-            gap: 6px;
+            gap: 8px;
             flex-wrap: wrap;
+            align-items: center;
         }
 
-        .color-tag {
-            font-size: 0.75rem;
-            background: #f3eee8;
-            color: #555;
-            padding: 3px 8px;
-            border-radius: 12px;
-            border: 1px solid #e0d8ce;
+        .color-circle-sample {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: inline-block;
+            border: 2px solid #e0d8ce;
             cursor: pointer;
-            transition: all 0.2s;
+            position: relative;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
         }
 
-        .color-tag.selected {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary-dark);
-            font-weight: 600;
+        .color-circle-sample:hover {
+            transform: scale(1.18);
+        }
+
+        .color-circle-sample.selected {
+            border-color: var(--primary);
+            transform: scale(1.22);
+            box-shadow: 0 0 0 2px rgba(140, 109, 88, 0.4);
         }
 
         .btn-contact {
@@ -448,7 +452,6 @@
         .btn-edit-product { background: #3b82f6; }
         .btn-delete-product { background: #dc3545; }
 
-        /* BANNER DE COOKIES */
         .cookie-banner {
             position: fixed;
             bottom: 0;
@@ -478,7 +481,6 @@
             font-weight: 600;
         }
 
-        /* PIE DE PÁGINA / DATOS EMPRESA */
         footer {
             text-align: center;
             padding: 40px 15px 30px;
@@ -620,7 +622,7 @@
                         </div>
                         <div class="form-group">
                             <label>Colores Disponibles (Separados por comas):</label>
-                            <input type="text" id="p-colors" placeholder="Ej. Blanco, Beige, Mostaza">
+                            <input type="text" id="p-colors" placeholder="Ej. Blanco, Beige, Mostaza, Terracota">
                         </div>
                         <div class="form-group">
                             <label>Canal de Contacto:</label>
@@ -683,7 +685,7 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let products = [];
-        let selectedColors = {}; // Guardar el color elegido de cada producto
+        let selectedColors = {}; 
         let contactPhone = "34600000000";
 
         document.getElementById('year').textContent = new Date().getFullYear();
@@ -704,6 +706,87 @@
 
         if (isAdminUser) {
             document.getElementById('admin-toggle-btn').classList.add('visible');
+        }
+
+        // DICCIONARIO PARA CONVERTIR NOMBRES DE COLORES A VALORES CSS
+        const colorMap = {
+            'blanco': '#ffffff',
+            'negro': '#222222',
+            'rojo': '#e63946',
+            'azul': '#1d3557',
+            'azul marino': '#000080',
+            'verde': '#2a9d8f',
+            'amarillo': '#e9c46a',
+            'rosa': '#f4a261',
+            'beige': '#f5f5dc',
+            'crudo': '#fdf5e6',
+            'mostaza': '#e3a857',
+            'terracota': '#cb6d51',
+            'gris': '#888888',
+            'morado': '#800080',
+            'lila': '#c8a2c8',
+            'naranja': '#f8961e',
+            'marrón': '#7f4f24',
+            'marron': '#7f4f24'
+        };
+
+        function getColorCode(colorName) {
+            const cleanName = colorName.trim().toLowerCase();
+            if (cleanName.startsWith('#')) return cleanName;
+            return colorMap[cleanName] || cleanName;
+        }
+
+        // CARGAR CONFIGURACIÓN DESDE SUPABASE
+        async function fetchConfig() {
+            try {
+                const { data, error } = await _supabase
+                    .from('configuracion')
+                    .select('*')
+                    .eq('id', 'main')
+                    .single();
+
+                if (!error && data) {
+                    if (data.phone) {
+                        contactPhone = data.phone;
+                        document.getElementById('input-phone').value = data.phone;
+                    }
+                    if (data.title) {
+                        document.getElementById('site-title').textContent = data.title;
+                        document.getElementById('input-title').value = data.title;
+                    }
+                    if (data.subtitle) {
+                        document.getElementById('site-subtitle').textContent = data.subtitle;
+                        document.getElementById('input-subtitle').value = data.subtitle;
+                    }
+                    if (data.topbar) {
+                        document.getElementById('top-bar-text').textContent = data.topbar;
+                        document.getElementById('input-topbar').value = data.topbar;
+                    }
+                    if (data.font_title) {
+                        document.documentElement.style.setProperty('--font-title', data.font_title);
+                        document.getElementById('select-font-title').value = data.font_title;
+                    }
+                    if (data.font_body) {
+                        document.documentElement.style.setProperty('--font-body', data.font_body);
+                        document.getElementById('select-font-body').value = data.font_body;
+                    }
+                    if (data.logo_url) {
+                        document.getElementById('site-logo').src = data.logo_url;
+                        document.getElementById('input-logo-url').value = data.logo_url;
+                    }
+                    if (data.logo_size) {
+                        document.getElementById('site-logo').style.width = data.logo_size + 'px';
+                        document.getElementById('input-logo-size').value = data.logo_size;
+                        document.getElementById('logo-size-val').textContent = data.logo_size + 'px';
+                    }
+                    if (data.header_url) {
+                        document.getElementById('main-header').style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('${data.header_url}')`;
+                        document.getElementById('input-header-url').value = data.header_url;
+                    }
+                }
+            } catch (err) {
+                console.error("Error cargando configuración:", err);
+            }
         }
 
         // CARGAR PRODUCTOS DESDE SUPABASE
@@ -762,7 +845,6 @@
             }
 
             items.forEach(product => {
-                // Generar bloque HTML de colores si el producto los tiene
                 let colorsHtml = '';
                 if (product.colors) {
                     const colorArray = product.colors.split(',').map(c => c.trim()).filter(Boolean);
@@ -771,12 +853,17 @@
                             <div class="color-selector-container">
                                 <span class="color-label">Colores disponibles:</span>
                                 <div class="color-options">
-                                    ${colorArray.map(col => `
-                                        <span class="color-tag ${selectedColors[product.id] === col ? 'selected' : ''}" 
-                                              onclick="selectColor(${product.id}, '${col}', this)">
-                                            ${col}
-                                        </span>
-                                    `).join('')}
+                                    ${colorArray.map(col => {
+                                        const bgValue = getColorCode(col);
+                                        const isSelected = selectedColors[product.id] === col;
+                                        return `
+                                            <span class="color-circle-sample ${isSelected ? 'selected' : ''}" 
+                                                  style="background-color: ${bgValue};"
+                                                  title="${col}" 
+                                                  onclick="selectColor(${product.id}, '${col}', this)">
+                                            </span>
+                                        `;
+                                    }).join('')}
                                 </div>
                             </div>
                         `;
@@ -798,7 +885,7 @@
                         <h3 class="product-title">${product.title}</h3>
                         <p class="product-price">${product.price} €</p>
                         ${colorsHtml}
-                        <button onclick="buyProduct(${product.id})" class="btn-contact" style="width: 100%; border: 1px solid var(--primary); cursor: pointer;">💬 Comprar por WhatsApp</button>
+                        <button onclick="buyProduct(${product.id})" class="btn-contact" style="width: 100%; border: 1px solid var(--primary); cursor: pointer;">💬 Contactar por WhatsApp</button>
                     </div>
                 `;
                 container.appendChild(card);
@@ -809,7 +896,7 @@
         function selectColor(productId, colorName, element) {
             selectedColors[productId] = colorName;
             const parent = element.parentElement;
-            parent.querySelectorAll('.color-tag').forEach(tag => tag.classList.remove('selected'));
+            parent.querySelectorAll('.color-circle-sample').forEach(tag => tag.classList.remove('selected'));
             element.classList.add('selected');
         }
 
@@ -825,33 +912,60 @@
                 colorText = ` (Colores disp: ${product.colors})`;
             }
 
+            const cleanPhone = (contactPhone || "").replace(/\D/g, '');
+            if (!cleanPhone) {
+                alert("Por favor configura un número de teléfono de WhatsApp válido en el panel de control.");
+                return;
+            }
+
             const msg = encodeURIComponent(`Hola! Me interesa consultar disponibilidad para comprar "${product.title}" (${product.price}€)${colorText}.`);
-            window.open(`https://wa.me/${contactPhone}?text=${msg}`, '_blank');
+            window.open(`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${msg}`, '_blank');
         }
 
-        // EDITAR TEXTOS DE LA PÁGINA
-        function updateTexts() {
+        // EDITAR Y GUARDAR TEXTOS Y TELÉFONO EN SUPABASE
+        async function updateTexts() {
             const title = document.getElementById('input-title').value;
             const sub = document.getElementById('input-subtitle').value;
             const top = document.getElementById('input-topbar').value;
             const phone = document.getElementById('input-phone').value;
 
-            if(title) document.getElementById('site-title').textContent = title;
-            if(sub) document.getElementById('site-subtitle').textContent = sub;
-            if(top) document.getElementById('top-bar-text').textContent = top;
-            if(phone) contactPhone = phone;
+            const payload = { id: 'main' };
+            if (title) payload.title = title;
+            if (sub) payload.subtitle = sub;
+            if (top) payload.topbar = top;
+            if (phone) payload.phone = phone;
 
-            alert('¡Textos actualizados!');
+            const { error } = await _supabase.from('configuracion').upsert([payload]);
+
+            if (error) {
+                alert("Error al guardar en Supabase: " + error.message);
+            } else {
+                if(title) document.getElementById('site-title').textContent = title;
+                if(sub) document.getElementById('site-subtitle').textContent = sub;
+                if(top) document.getElementById('top-bar-text').textContent = top;
+                if(phone) contactPhone = phone;
+                alert('¡Textos y teléfono guardados en Supabase correctamente!');
+            }
         }
 
-        function saveFonts() {
+        // EDITAR Y GUARDAR TIPOGRAFÍAS EN SUPABASE
+        async function saveFonts() {
             const fTitle = document.getElementById('select-font-title').value;
             const fBody = document.getElementById('select-font-body').value;
 
-            document.documentElement.style.setProperty('--font-title', fTitle);
-            document.documentElement.style.setProperty('--font-body', fBody);
+            const { error } = await _supabase.from('configuracion').upsert([{
+                id: 'main',
+                font_title: fTitle,
+                font_body: fBody
+            }]);
 
-            alert('¡Tipografía cambiada!');
+            if (error) {
+                alert("Error al guardar tipografías: " + error.message);
+            } else {
+                document.documentElement.style.setProperty('--font-title', fTitle);
+                document.documentElement.style.setProperty('--font-body', fBody);
+                alert('¡Tipografía guardada en Supabase!');
+            }
         }
 
         function changeLogoSize(size) {
@@ -859,16 +973,29 @@
             document.getElementById('logo-size-val').textContent = size + 'px';
         }
 
-        function updateDesignImages() {
+        // EDITAR Y GUARDAR LOGO E IMÁGENES EN SUPABASE
+        async function updateDesignImages() {
             const logoUrl = document.getElementById('input-logo-url').value;
+            const logoSize = document.getElementById('input-logo-size').value;
             const headerUrl = document.getElementById('input-header-url').value;
 
-            if (logoUrl) document.getElementById('site-logo').src = logoUrl;
-            if (headerUrl) {
-                document.getElementById('main-header').style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('${headerUrl}')`;
-            }
+            const payload = { id: 'main' };
+            if (logoUrl) payload.logo_url = logoUrl;
+            if (logoSize) payload.logo_size = logoSize;
+            if (headerUrl) payload.header_url = headerUrl;
 
-            alert('¡Imágenes aplicadas!');
+            const { error } = await _supabase.from('configuracion').upsert([payload]);
+
+            if (error) {
+                alert("Error al guardar imágenes: " + error.message);
+            } else {
+                if (logoUrl) document.getElementById('site-logo').src = logoUrl;
+                if (logoSize) document.getElementById('site-logo').style.width = logoSize + 'px';
+                if (headerUrl) {
+                    document.getElementById('main-header').style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('${headerUrl}')`;
+                }
+                alert('¡Imágenes aplicadas y guardadas en Supabase!');
+            }
         }
 
         // CREAR O ACTUALIZAR PRODUCTO EN SUPABASE
@@ -952,6 +1079,8 @@
             }
         }
 
+        // INICIALIZAR CARGA DE CONFIGURACIÓN Y PRODUCTOS
+        fetchConfig();
         fetchProducts();
     </script>
 </body>
