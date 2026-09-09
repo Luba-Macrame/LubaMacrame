@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tienda de Macramé Artesanal</title>
+    <title>Tienda de Macramé Artesanía</title>
+    
+    <!-- FAVICON DINÁMICO -->
+    <link id="site-favicon" rel="icon" type="image/x-icon" href="">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Cinzel:wght@500;700&family=Inter:wght@300;400;600&family=Lora:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -80,7 +84,7 @@
         }
 
         .brand-logo {
-            width: 130px;
+            width: 230px;
             height: auto;
             max-width: 85vw;
             object-fit: contain;
@@ -295,6 +299,15 @@
             position: relative;
             display: flex;
             flex-direction: column;
+            user-select: none;
+        }
+
+        .admin-mode .product-card[draggable="true"] {
+            cursor: grab;
+        }
+
+        .admin-mode .product-card[draggable="true"]:active {
+            cursor: grabbing;
         }
 
         .product-card:hover {
@@ -302,7 +315,6 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.06);
         }
 
-        /* CARRUSEL DE IMÁGENES */
         .img-container {
             width: 100%;
             height: clamp(230px, 50vw, 320px);
@@ -323,6 +335,7 @@
             height: 100%;
             object-fit: cover;
             flex-shrink: 0;
+            pointer-events: none;
         }
 
         .carousel-indicators {
@@ -525,19 +538,6 @@
             margin-bottom: 6px;
             font-family: var(--font-title);
         }
-
-        .footer-links {
-            margin-top: 15px;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .footer-links a {
-            color: #666;
-            text-decoration: underline;
-        }
     </style>
 </head>
 <body>
@@ -549,7 +549,7 @@
             <img id="site-logo" class="brand-logo" src="https://i.ibb.co/yBxhfVJs/logo-blanco.png" alt="Logo Marca">
         </div>
         <h1 id="site-title">Tu Tienda de Macramé</h1>
-        <p id="site-subtitle">NUDO A NUDO, TEJEMOS HISTORIAS PARA TI.</p>
+        <p id="site-subtitle">NUDO A NUDO, TEJEMOS HISTORIAS PARA TI</p>
     </header>
 
     <button id="admin-toggle-btn" class="btn-admin-toggle" onclick="toggleAdmin()">⚙️ <span>Modificar Web</span></button>
@@ -618,9 +618,13 @@
                 <div class="form-group">
                     <label>Tamaño Logo (px):</label>
                     <div class="range-slider-container">
-                        <input type="range" id="input-logo-size" min="30" max="400" value="130" oninput="changeLogoSize(this.value)">
-                        <span id="logo-size-val" class="range-value">130px</span>
+                        <input type="range" id="input-logo-size" min="30" max="400" value="230" oninput="changeLogoSize(this.value)">
+                        <span id="logo-size-val" class="range-value">230px</span>
                     </div>
+                </div>
+                <div class="form-group">
+                    <label>Favicon / Icono Pestaña (URL):</label>
+                    <input type="text" id="input-favicon-url" placeholder="https://i.ibb.co/tu-icono.png">
                 </div>
                 <div class="form-group">
                     <label>Imagen Header (URL):</label>
@@ -683,7 +687,7 @@
 
     <footer>
         <div class="company-info">
-            <h4>Luba Macramé Artesanal</h4>
+            <h4>Luba Macramé Artesanía</h4>
             <p>Empresa / Autónomo: <strong>Nombre Fiscal</strong> | NIF/CIF: <strong>00000000X</strong></p>
         </div>
         <p>&copy; <span id="year"></span> Macramé Artesanal.</p>
@@ -699,6 +703,7 @@
         let carouselIntervals = {};
         let contactPhone = "34600000000";
         let showPrices = true;
+        let draggedItemIndex = null;
 
         document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -744,6 +749,11 @@
                     if (data.logo_size) { document.getElementById('site-logo').style.width = data.logo_size + 'px'; document.getElementById('input-logo-size').value = data.logo_size; }
                     if (data.header_url) { document.getElementById('main-header').style.backgroundImage = `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('${data.header_url}')`; document.getElementById('input-header-url').value = data.header_url; }
                     
+                    if (data.favicon_url) { 
+                        document.getElementById('site-favicon').href = data.favicon_url; 
+                        document.getElementById('input-favicon-url').value = data.favicon_url; 
+                    }
+
                     if (data.show_prices !== undefined && data.show_prices !== null) {
                         showPrices = data.show_prices === true || data.show_prices === 'true';
                         document.getElementById('select-show-prices').value = showPrices ? "true" : "false";
@@ -753,7 +763,12 @@
         }
 
         async function fetchProducts() {
-            const { data, error } = await _supabase.from('productos').select('*').order('id', { ascending: false });
+            const { data, error } = await _supabase
+                .from('productos')
+                .select('*')
+                .order('position', { ascending: true, nullsFirst: false })
+                .order('id', { ascending: false });
+
             if (!error) {
                 products = data || [];
                 renderProducts(products);
@@ -804,7 +819,9 @@
                 return;
             }
 
-            items.forEach(product => {
+            const isAdmin = document.getElementById('admin-panel').classList.contains('active');
+
+            items.forEach((product, index) => {
                 const imagesList = (product.image || '').split(',').map(u => u.trim()).filter(Boolean);
                 
                 let colorsHtml = '';
@@ -833,6 +850,33 @@
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 card.id = `product-card-${product.id}`;
+
+                if (isAdmin) {
+                    card.setAttribute('draggable', 'true');
+                    
+                    card.addEventListener('dragstart', (e) => {
+                        draggedItemIndex = index;
+                        card.style.opacity = '0.4';
+                        e.dataTransfer.effectAllowed = 'move';
+                    });
+
+                    card.addEventListener('dragend', () => {
+                        card.style.opacity = '1';
+                    });
+
+                    card.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
+                    });
+
+                    card.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        if (draggedItemIndex !== null && draggedItemIndex !== index) {
+                            moveProductOrder(draggedItemIndex, index);
+                        }
+                    });
+                }
+
                 card.innerHTML = `
                     <div class="admin-controls-card">
                         <button class="btn-card-icon btn-edit-product" onclick='startEditProduct(${JSON.stringify(product)})'>✏️</button>
@@ -860,6 +904,17 @@
                     startAutoSlide(product.id, imagesList.length);
                 }
             });
+        }
+
+        async function moveProductOrder(fromIndex, toIndex) {
+            const movedProduct = products.splice(fromIndex, 1)[0];
+            products.splice(toIndex, 0, movedProduct);
+
+            renderProducts(products);
+
+            for (let i = 0; i < products.length; i++) {
+                await _supabase.from('productos').update({ position: i + 1 }).eq('id', products[i].id);
+            }
         }
 
         function startAutoSlide(productId, totalImages) {
@@ -962,15 +1017,24 @@
         }
 
         async function updateDesignImages() {
+            const faviconValue = document.getElementById('input-favicon-url').value;
+
             const { error } = await _supabase.from('configuracion').upsert([{
                 id: 'main',
                 logo_url: document.getElementById('input-logo-url').value,
                 logo_size: document.getElementById('input-logo-size').value,
-                header_url: document.getElementById('input-header-url').value
+                header_url: document.getElementById('input-header-url').value,
+                favicon_url: faviconValue
             }]);
+
             if (!error) {
-                alert('Imágenes de marca guardadas');
+                if (faviconValue) {
+                    document.getElementById('site-favicon').href = faviconValue;
+                }
+                alert('Imágenes de marca y favicon guardados correctamente');
                 fetchConfig();
+            } else {
+                alert('Error al guardar: ' + error.message);
             }
         }
 
@@ -1033,6 +1097,7 @@
             document.body.classList.toggle('admin-mode');
             const panel = document.getElementById('admin-panel');
             panel.classList.toggle('active');
+            renderProducts(products);
             if(panel.classList.contains('active')) panel.scrollIntoView({ behavior: 'smooth' });
         }
 
