@@ -238,6 +238,48 @@
             background: var(--primary-dark);
         }
 
+        .category-order-list {
+            list-style: none;
+            margin-bottom: 12px;
+        }
+
+        .category-order-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .category-order-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .btn-order {
+            background: #e0d8ce;
+            border: none;
+            border-radius: 4px;
+            width: 26px;
+            height: 26px;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-order:hover {
+            background: var(--primary);
+            color: white;
+        }
+
         .categories-wrapper {
             width: 100%;
             overflow-x: auto;
@@ -315,25 +357,8 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.06);
         }
 
-        /* Estilo para Tarjeta de Categoría Portada */
         .category-cover-card {
             cursor: pointer;
-        }
-
-        .category-cover-card .category-badge {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: rgba(0, 0, 0, 0.65);
-            color: #ffffff;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            z-index: 10;
-            backdrop-filter: blur(4px);
         }
 
         .img-container {
@@ -654,6 +679,12 @@
                 <button class="btn-submit" onclick="updateDesignImages()">Aplicar Imágenes</button>
             </div>
 
+            <div class="admin-section">
+                <h3>5. Ordenar Categorías</h3>
+                <ul class="category-order-list" id="category-order-list"></ul>
+                <button class="btn-submit" onclick="saveCategoryOrder()">Guardar Orden Categorías</button>
+            </div>
+
             <div class="admin-section" style="grid-column: 1 / -1;">
                 <h3 id="form-product-heading">4. Subir / Editar Producto</h3>
                 <form id="add-product-form" onsubmit="saveProduct(event)">
@@ -719,6 +750,7 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let products = [];
+        let categoryOrder = [];
         let currentCategoryFilter = 'Todos';
         let selectedColors = {}; 
         let carouselIntervals = {};
@@ -775,12 +807,17 @@
                         document.getElementById('input-favicon-url').value = data.favicon_url; 
                     }
 
+                    if (data.category_order) {
+                        categoryOrder = typeof data.category_order === 'string' ? JSON.parse(data.category_order) : data.category_order;
+                    }
+
                     if (data.show_prices !== undefined && data.show_prices !== null) {
                         showPrices = data.show_prices === true || data.show_prices === 'true';
                         document.getElementById('select-show-prices').value = showPrices ? "true" : "false";
                     }
 
                     if (products.length > 0) {
+                        renderCategoriesNav();
                         renderMainView();
                     }
                 }
@@ -796,22 +833,80 @@
 
             if (!error) {
                 products = data || [];
+                syncCategoryOrder();
                 renderCategoriesNav();
                 renderMainView();
+                renderAdminCategoryManager();
             }
+        }
+
+        function syncCategoryOrder() {
+            const existingCategories = [...new Set(products.map(p => p.category).filter(Boolean))];
+            
+            categoryOrder = categoryOrder.filter(c => existingCategories.includes(c));
+            existingCategories.forEach(c => {
+                if (!categoryOrder.includes(c)) {
+                    categoryOrder.push(c);
+                }
+            });
         }
 
         function renderCategoriesNav() {
             const nav = document.getElementById('main-category-nav');
-            const uniqueCategories = ['Todos', ...new Set(products.map(p => p.category).filter(Boolean))];
+            const displayCategories = ['Todos', ...categoryOrder];
             nav.innerHTML = '';
-            uniqueCategories.forEach((cat) => {
+            displayCategories.forEach((cat) => {
                 const btn = document.createElement('button');
                 btn.className = `category-btn ${cat === currentCategoryFilter ? 'active' : ''}`;
                 btn.textContent = cat === 'Todos' ? 'Categorías' : cat;
                 btn.onclick = () => filterProducts(cat);
                 nav.appendChild(btn);
             });
+        }
+
+        function renderAdminCategoryManager() {
+            const list = document.getElementById('category-order-list');
+            if(!list) return;
+            list.innerHTML = '';
+
+            categoryOrder.forEach((cat, index) => {
+                const li = document.createElement('li');
+                li.className = 'category-order-item';
+                li.innerHTML = `
+                    <span>${cat}</span>
+                    <div class="category-order-actions">
+                        <button class="btn-order" onclick="moveCategory(${index}, -1)">▲</button>
+                        <button class="btn-order" onclick="moveCategory(${index}, 1)">▼</button>
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function moveCategory(index, direction) {
+            const targetIndex = index + direction;
+            if (targetIndex < 0 || targetIndex >= categoryOrder.length) return;
+            
+            const temp = categoryOrder[index];
+            categoryOrder[index] = categoryOrder[targetIndex];
+            categoryOrder[targetIndex] = temp;
+
+            renderAdminCategoryManager();
+            renderCategoriesNav();
+            renderMainView();
+        }
+
+        async function saveCategoryOrder() {
+            const { error } = await _supabase.from('configuracion').upsert([{
+                id: 'main',
+                category_order: JSON.stringify(categoryOrder)
+            }]);
+
+            if (!error) {
+                alert('Orden de categorías guardado correctamente');
+            } else {
+                alert('Error al guardar el orden: ' + error.message);
+            }
         }
 
         function filterProducts(cat) {
@@ -836,14 +931,12 @@
             const container = document.getElementById('products-container');
             container.innerHTML = '';
 
-            const uniqueCategories = [...new Set(products.map(p => p.category).filter(Boolean))];
-
-            if (!uniqueCategories.length) {
+            if (!categoryOrder.length) {
                 container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">No hay categorías creadas.</p>';
                 return;
             }
 
-            uniqueCategories.forEach(cat => {
+            categoryOrder.forEach(cat => {
                 const firstProduct = products.find(p => p.category === cat);
                 if (!firstProduct) return;
 
@@ -854,7 +947,6 @@
                 card.onclick = () => filterProducts(cat);
 
                 card.innerHTML = `
-                    <span class="category-badge">${cat}</span>
                     <div class="img-container">
                         <img src="${firstImg}" class="product-img">
                     </div>
