@@ -1259,10 +1259,18 @@
 
         function toggleAdmin() {
             document.body.classList.toggle('admin-mode');
-            const panel = document.getElementById('admin-panel');
-            panel.classList.toggle('active');
-            renderMainView();
-            if(panel.classList.contains('active')) panel.scrollIntoView({ behavior: 'smooth' });
+    const panel = document.getElementById('admin-panel');
+    panel.classList.toggle('active');
+    
+    // Al abrir el panel de administración, sincronizamos y refrescamos el orden
+    if (panel.classList.contains('active')) {
+        syncCategoryOrder();
+        renderAdminCategoryManager();
+        renderCategoriesNav();
+        panel.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    renderMainView();
         }
 
         fetchConfig();
