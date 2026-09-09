@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tienda de Macramé Artesanía</title>
+    <title>Luba Macramé Artesanía</title>
+    
+    <!-- FAVICON DINÁMICO -->
+    <link id="site-favicon" rel="icon" type="image/x-icon" href="">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Cinzel:wght@500;700&family=Inter:wght@300;400;600&family=Lora:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -614,9 +618,13 @@
                 <div class="form-group">
                     <label>Tamaño Logo (px):</label>
                     <div class="range-slider-container">
-                        <input type="range" id="input-logo-size" min="30" max="400" value="130" oninput="changeLogoSize(this.value)">
-                        <span id="logo-size-val" class="range-value">130px</span>
+                        <input type="range" id="input-logo-size" min="30" max="400" value="230" oninput="changeLogoSize(this.value)">
+                        <span id="logo-size-val" class="range-value">230px</span>
                     </div>
+                </div>
+                <div class="form-group">
+                    <label>Favicon / Icono Pestaña (URL):</label>
+                    <input type="text" id="input-favicon-url" placeholder="https://i.ibb.co/tu-icono.png">
                 </div>
                 <div class="form-group">
                     <label>Imagen Header (URL):</label>
@@ -680,7 +688,6 @@
     <footer>
         <div class="company-info">
             <h4>Luba Macramé Artesanía</h4>
-            <p>Empresa / Autónomo: <strong>Nombre Fiscal</strong> | NIF/CIF: <strong>00000000X</strong></p>
         </div>
         <p>&copy; <span id="year"></span> Macramé Artesanal.</p>
     </footer>
@@ -716,7 +723,7 @@
         const colorMap = {
             'blanco': '#ffffff', 'negro': '#222222', 'rojo': '#e63946',
             'azul': '#1d3557', 'azul marino': '#000080', 'verde': '#2a9d8f',
-            'amarillo': '#e9c46a', 'rosa': '#f4a261', 'beige': '#f5f5dc',
+            'amarillo': '#e9c46a', 'rosa': '#ffb5C0', 'beige': '#f5f5dc',
             'crudo': '#fdf5e6', 'mostaza': '#e3a857', 'terracota': '#cb6d51',
             'gris': '#888888', 'morado': '#800080', 'lila': '#c8a2c8',
             'naranja': '#f8961e', 'marrón': '#7f4f24', 'marron': '#7f4f24'
@@ -741,9 +748,18 @@
                     if (data.logo_size) { document.getElementById('site-logo').style.width = data.logo_size + 'px'; document.getElementById('input-logo-size').value = data.logo_size; }
                     if (data.header_url) { document.getElementById('main-header').style.backgroundImage = `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('${data.header_url}')`; document.getElementById('input-header-url').value = data.header_url; }
                     
+                    if (data.favicon_url) { 
+                        document.getElementById('site-favicon').href = data.favicon_url; 
+                        document.getElementById('input-favicon-url').value = data.favicon_url; 
+                    }
+
                     if (data.show_prices !== undefined && data.show_prices !== null) {
                         showPrices = data.show_prices === true || data.show_prices === 'true';
                         document.getElementById('select-show-prices').value = showPrices ? "true" : "false";
+                    }
+
+                    if (products.length > 0) {
+                        renderProducts(products);
                     }
                 }
             } catch (err) { console.error(err); }
@@ -1004,15 +1020,24 @@
         }
 
         async function updateDesignImages() {
+            const faviconValue = document.getElementById('input-favicon-url').value;
+
             const { error } = await _supabase.from('configuracion').upsert([{
                 id: 'main',
                 logo_url: document.getElementById('input-logo-url').value,
                 logo_size: document.getElementById('input-logo-size').value,
-                header_url: document.getElementById('input-header-url').value
+                header_url: document.getElementById('input-header-url').value,
+                favicon_url: faviconValue
             }]);
+
             if (!error) {
-                alert('Imágenes de marca guardadas');
+                if (faviconValue) {
+                    document.getElementById('site-favicon').href = faviconValue;
+                }
+                alert('Imágenes de marca y favicon guardados correctamente');
                 fetchConfig();
+            } else {
+                alert('Error al guardar: ' + error.message);
             }
         }
 
