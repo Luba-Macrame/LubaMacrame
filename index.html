@@ -295,6 +295,15 @@
             position: relative;
             display: flex;
             flex-direction: column;
+            user-select: none;
+        }
+
+        .admin-mode .product-card[draggable="true"] {
+            cursor: grab;
+        }
+
+        .admin-mode .product-card[draggable="true"]:active {
+            cursor: grabbing;
         }
 
         .product-card:hover {
@@ -302,7 +311,6 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.06);
         }
 
-        /* CARRUSEL DE IMÁGENES */
         .img-container {
             width: 100%;
             height: clamp(230px, 50vw, 320px);
@@ -323,6 +331,7 @@
             height: 100%;
             object-fit: cover;
             flex-shrink: 0;
+            pointer-events: none;
         }
 
         .carousel-indicators {
@@ -525,19 +534,6 @@
             margin-bottom: 6px;
             font-family: var(--font-title);
         }
-
-        .footer-links {
-            margin-top: 15px;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .footer-links a {
-            color: #666;
-            text-decoration: underline;
-        }
     </style>
 </head>
 <body>
@@ -559,7 +555,7 @@
         
         <div class="admin-grid">
             <div class="admin-section">
-                <h3>1. Textos y Contacto Principal</h3>
+                <h3>1. Textos y Visibilidad</h3>
                 <div class="form-group">
                     <label>Título Principal:</label>
                     <input type="text" id="input-title">
@@ -576,7 +572,14 @@
                     <label>Teléfono de WhatsApp:</label>
                     <input type="text" id="input-phone">
                 </div>
-                <button class="btn-submit" onclick="updateTexts()">Guardar Textos</button>
+                <div class="form-group">
+                    <label>Mostrar Precios en la Tienda:</label>
+                    <select id="select-show-prices">
+                        <option value="true">Sí (Mostrar precios)</option>
+                        <option value="false">No (Ocultar precios)</option>
+                    </select>
+                </div>
+                <button class="btn-submit" onclick="updateTexts()">Guardar Cambios</button>
             </div>
 
             <div class="admin-section">
@@ -691,6 +694,8 @@
         let selectedColors = {}; 
         let carouselIntervals = {};
         let contactPhone = "34600000000";
+        let showPrices = true;
+        let draggedItemIndex = null;
 
         document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -735,12 +740,22 @@
                     if (data.logo_url) { document.getElementById('site-logo').src = data.logo_url; document.getElementById('input-logo-url').value = data.logo_url; }
                     if (data.logo_size) { document.getElementById('site-logo').style.width = data.logo_size + 'px'; document.getElementById('input-logo-size').value = data.logo_size; }
                     if (data.header_url) { document.getElementById('main-header').style.backgroundImage = `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('${data.header_url}')`; document.getElementById('input-header-url').value = data.header_url; }
+                    
+                    if (data.show_prices !== undefined && data.show_prices !== null) {
+                        showPrices = data.show_prices === true || data.show_prices === 'true';
+                        document.getElementById('select-show-prices').value = showPrices ? "true" : "false";
+                    }
                 }
             } catch (err) { console.error(err); }
         }
 
         async function fetchProducts() {
-            const { data, error } = await _supabase.from('productos').select('*').order('id', { ascending: false });
+            const { data, error } = await _supabase
+                .from('productos')
+                .select('*')
+                .order('position', { ascending: true, nullsFirst: false })
+                .order('id', { ascending: false });
+
             if (!error) {
                 products = data || [];
                 renderProducts(products);
@@ -791,7 +806,9 @@
                 return;
             }
 
-            items.forEach(product => {
+            const isAdmin = document.getElementById('admin-panel').classList.contains('active');
+
+            items.forEach((product, index) => {
                 const imagesList = (product.image || '').split(',').map(u => u.trim()).filter(Boolean);
                 
                 let colorsHtml = '';
@@ -815,9 +832,38 @@
                     }
                 }
 
+                const priceHtml = showPrices ? `<p class="product-price">${product.price} €</p>` : '';
+
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 card.id = `product-card-${product.id}`;
+
+                if (isAdmin) {
+                    card.setAttribute('draggable', 'true');
+                    
+                    card.addEventListener('dragstart', (e) => {
+                        draggedItemIndex = index;
+                        card.style.opacity = '0.4';
+                        e.dataTransfer.effectAllowed = 'move';
+                    });
+
+                    card.addEventListener('dragend', () => {
+                        card.style.opacity = '1';
+                    });
+
+                    card.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
+                    });
+
+                    card.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        if (draggedItemIndex !== null && draggedItemIndex !== index) {
+                            moveProductOrder(draggedItemIndex, index);
+                        }
+                    });
+                }
+
                 card.innerHTML = `
                     <div class="admin-controls-card">
                         <button class="btn-card-icon btn-edit-product" onclick='startEditProduct(${JSON.stringify(product)})'>✏️</button>
@@ -834,7 +880,7 @@
                     <div class="product-info">
                         <span class="product-category">${product.category || 'General'}</span>
                         <h3 class="product-title">${product.title}</h3>
-                        <p class="product-price">${product.price} €</p>
+                        ${priceHtml}
                         ${colorsHtml}
                         <button onclick="buyProduct(${product.id})" class="btn-contact" style="width: 100%; border: 1px solid var(--primary); cursor: pointer;">💬 Contactar por WhatsApp</button>
                     </div>
@@ -845,6 +891,17 @@
                     startAutoSlide(product.id, imagesList.length);
                 }
             });
+        }
+
+        async function moveProductOrder(fromIndex, toIndex) {
+            const movedProduct = products.splice(fromIndex, 1)[0];
+            products.splice(toIndex, 0, movedProduct);
+
+            renderProducts(products);
+
+            for (let i = 0; i < products.length; i++) {
+                await _supabase.from('productos').update({ position: i + 1 }).eq('id', products[i].id);
+            }
         }
 
         function startAutoSlide(productId, totalImages) {
@@ -896,29 +953,36 @@
             if (!product) return;
 
             let colorText = selectedColors[productId] ? ` en color "${selectedColors[productId]}"` : (product.colors ? ` (Colores: ${product.colors})` : '');
+            let priceText = showPrices ? ` (${product.price}€)` : '';
             const cleanPhone = (contactPhone || "").replace(/\D/g, '');
             if (!cleanPhone) {
                 alert("Configura un número de WhatsApp en el panel de control.");
                 return;
             }
 
-            const msg = encodeURIComponent(`Hola! Me interesa consultar disponibilidad para comprar "${product.title}" (${product.price}€)${colorText}.`);
+            const msg = encodeURIComponent(`Hola! Me interesa consultar disponibilidad para comprar "${product.title}"${priceText}${colorText}.`);
             window.open(`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${msg}`, '_blank');
         }
 
         async function updateTexts() {
+            showPrices = document.getElementById('select-show-prices').value === "true";
+            
             const payload = {
                 id: 'main',
                 title: document.getElementById('input-title').value,
                 subtitle: document.getElementById('input-subtitle').value,
                 topbar: document.getElementById('input-topbar').value,
-                phone: document.getElementById('input-phone').value
+                phone: document.getElementById('input-phone').value,
+                show_prices: showPrices
             };
 
             const { error } = await _supabase.from('configuracion').upsert([payload]);
             if (!error) {
-                alert('Textos actualizados');
+                alert('Configuración guardada correctamente');
                 fetchConfig();
+                renderProducts(products);
+            } else {
+                alert('Error al guardar: ' + error.message);
             }
         }
 
@@ -1011,6 +1075,7 @@
             document.body.classList.toggle('admin-mode');
             const panel = document.getElementById('admin-panel');
             panel.classList.toggle('active');
+            renderProducts(products);
             if(panel.classList.contains('active')) panel.scrollIntoView({ behavior: 'smooth' });
         }
 
