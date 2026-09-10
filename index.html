@@ -139,6 +139,52 @@
             transform: translateY(-2px);
         }
 
+        /* MODAL DE LOGIN */
+        .login-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        .login-modal-overlay.active {
+            display: flex;
+        }
+
+        .login-card {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 380px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .login-card h3 {
+            font-family: var(--font-title);
+            color: var(--primary);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .close-login-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #888;
+        }
+
         #admin-panel {
             display: none;
             background: #ffffff;
@@ -238,6 +284,48 @@
             background: var(--primary-dark);
         }
 
+        .category-order-list {
+            list-style: none;
+            margin-bottom: 12px;
+        }
+
+        .category-order-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .category-order-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .btn-order {
+            background: #e0d8ce;
+            border: none;
+            border-radius: 4px;
+            width: 26px;
+            height: 26px;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-order:hover {
+            background: var(--primary);
+            color: white;
+        }
+
         .categories-wrapper {
             width: 100%;
             overflow-x: auto;
@@ -313,6 +401,10 @@
         .product-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+        }
+
+        .category-cover-card {
+            cursor: pointer;
         }
 
         .img-container {
@@ -552,7 +644,26 @@
         <p id="site-subtitle">NUDO A NUDO, TEJEMOS HISTORIAS PARA TI</p>
     </header>
 
-    <button id="admin-toggle-btn" class="btn-admin-toggle" onclick="toggleAdmin()">⚙️ <span>Modificar Web</span></button>
+    <button id="admin-toggle-btn" class="btn-admin-toggle" onclick="handleAdminToggle()">⚙️ <span id="admin-btn-text">Modificar Web</span></button>
+
+    <!-- VENTANA DE AUTENTICACIÓN -->
+    <div id="login-modal" class="login-modal-overlay">
+        <div class="login-card">
+            <button class="close-login-btn" onclick="closeLoginModal()">&times;</button>
+            <h3>Acceso de Administración</h3>
+            <form id="login-form" onsubmit="loginUser(event)">
+                <div class="form-group">
+                    <label>Correo Electrónico:</label>
+                    <input type="email" id="login-email" required placeholder="admin@ejemplo.com">
+                </div>
+                <div class="form-group">
+                    <label>Contraseña:</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn-submit">Iniciar Sesión</button>
+            </form>
+        </div>
+    </div>
 
     <section id="admin-panel">
         <h2>Panel de Personalización</h2>
@@ -633,6 +744,12 @@
                 <button class="btn-submit" onclick="updateDesignImages()">Aplicar Imágenes</button>
             </div>
 
+            <div class="admin-section">
+                <h3>5. Ordenar Categorías</h3>
+                <ul class="category-order-list" id="category-order-list"></ul>
+                <button class="btn-submit" onclick="saveCategoryOrder()">Guardar Orden Categorías</button>
+            </div>
+
             <div class="admin-section" style="grid-column: 1 / -1;">
                 <h3 id="form-product-heading">4. Subir / Editar Producto</h3>
                 <form id="add-product-form" onsubmit="saveProduct(event)">
@@ -698,11 +815,14 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let products = [];
+        let categoryOrder = [];
+        let currentCategoryFilter = 'Todos';
         let selectedColors = {}; 
         let carouselIntervals = {};
         let contactPhone = "34600000000";
         let showPrices = true;
         let draggedItemIndex = null;
+        let isAuthenticated = false;
 
         document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -718,6 +838,71 @@
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('admin') === 'true') {
             document.getElementById('admin-toggle-btn').classList.add('visible');
+        }
+
+        // CONTROL DE SESIÓN Y AUTENTICACIÓN
+        _supabase.auth.onAuthStateChange((event, session) => {
+            if (session) {
+                isAuthenticated = true;
+                document.getElementById('admin-btn-text').textContent = "Cerrar Edición";
+            } else {
+                isAuthenticated = false;
+                document.getElementById('admin-btn-text').textContent = "Modificar Web";
+                closeAdminPanel();
+            }
+        });
+
+        function handleAdminToggle() {
+            if (isAuthenticated) {
+                const panel = document.getElementById('admin-panel');
+                if (panel.classList.contains('active')) {
+                    closeAdminPanel();
+                } else {
+                    openAdminPanel();
+                }
+            } else {
+                document.getElementById('login-modal').classList.add('active');
+            }
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal').classList.remove('active');
+        }
+
+        async function loginUser(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            const { data, error } = await _supabase.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                alert("Acceso denegado: " + error.message);
+            } else {
+                closeLoginModal();
+                openAdminPanel();
+            }
+        }
+
+        function openAdminPanel() {
+            document.body.classList.add('admin-mode');
+            const panel = document.getElementById('admin-panel');
+            panel.classList.add('active');
+            syncCategoryOrder();
+            renderAdminCategoryManager();
+            renderCategoriesNav();
+            renderMainView();
+            panel.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function closeAdminPanel() {
+            document.body.classList.remove('admin-mode');
+            const panel = document.getElementById('admin-panel');
+            panel.classList.remove('active');
+            renderMainView();
         }
 
         const colorMap = {
@@ -753,13 +938,18 @@
                         document.getElementById('input-favicon-url').value = data.favicon_url; 
                     }
 
+                    if (data.category_order) {
+                        categoryOrder = typeof data.category_order === 'string' ? JSON.parse(data.category_order) : data.category_order;
+                    }
+
                     if (data.show_prices !== undefined && data.show_prices !== null) {
                         showPrices = data.show_prices === true || data.show_prices === 'true';
                         document.getElementById('select-show-prices').value = showPrices ? "true" : "false";
                     }
 
                     if (products.length > 0) {
-                        renderProducts(products);
+                        renderCategoriesNav();
+                        renderMainView();
                     }
                 }
             } catch (err) { console.error(err); }
@@ -774,28 +964,130 @@
 
             if (!error) {
                 products = data || [];
-                renderProducts(products);
+                syncCategoryOrder();
                 renderCategoriesNav();
+                renderMainView();
+                renderAdminCategoryManager();
             }
+        }
+
+        function syncCategoryOrder() {
+            const existingCategories = [...new Set(products.map(p => p.category).filter(Boolean))];
+            
+            categoryOrder = categoryOrder.filter(c => existingCategories.includes(c));
+            existingCategories.forEach(c => {
+                if (!categoryOrder.includes(c)) {
+                    categoryOrder.push(c);
+                }
+            });
         }
 
         function renderCategoriesNav() {
             const nav = document.getElementById('main-category-nav');
-            const uniqueCategories = ['Todos', ...new Set(products.map(p => p.category).filter(Boolean))];
+            const displayCategories = ['Todos', ...categoryOrder];
             nav.innerHTML = '';
-            uniqueCategories.forEach((cat, idx) => {
+            displayCategories.forEach((cat) => {
                 const btn = document.createElement('button');
-                btn.className = `category-btn ${idx === 0 ? 'active' : ''}`;
-                btn.textContent = cat;
-                btn.onclick = () => filterProducts(cat, btn);
+                btn.className = `category-btn ${cat === currentCategoryFilter ? 'active' : ''}`;
+                btn.textContent = cat === 'Todos' ? 'Categorías' : cat;
+                btn.onclick = () => filterProducts(cat);
                 nav.appendChild(btn);
             });
         }
 
-        function filterProducts(cat, btn) {
-            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-            if(btn) btn.classList.add('active');
-            renderProducts(cat === 'Todos' ? products : products.filter(p => p.category === cat));
+        function renderAdminCategoryManager() {
+            const list = document.getElementById('category-order-list');
+            if(!list) return;
+            list.innerHTML = '';
+
+            categoryOrder.forEach((cat, index) => {
+                const li = document.createElement('li');
+                li.className = 'category-order-item';
+                li.innerHTML = `
+                    <span>${cat}</span>
+                    <div class="category-order-actions">
+                        <button class="btn-order" onclick="moveCategory(${index}, -1)">▲</button>
+                        <button class="btn-order" onclick="moveCategory(${index}, 1)">▼</button>
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function moveCategory(index, direction) {
+            const targetIndex = index + direction;
+            if (targetIndex < 0 || targetIndex >= categoryOrder.length) return;
+            
+            const temp = categoryOrder[index];
+            categoryOrder[index] = categoryOrder[targetIndex];
+            categoryOrder[targetIndex] = temp;
+
+            renderAdminCategoryManager();
+            renderCategoriesNav();
+            renderMainView();
+        }
+
+        async function saveCategoryOrder() {
+            const { error } = await _supabase.from('configuracion').upsert([{
+                id: 'main',
+                category_order: JSON.stringify(categoryOrder)
+            }]);
+
+            if (!error) {
+                alert('Orden de categorías guardado correctamente');
+            } else {
+                alert('Error al guardar el orden: ' + error.message);
+            }
+        }
+
+        function filterProducts(cat) {
+            currentCategoryFilter = cat;
+            renderCategoriesNav();
+            renderMainView();
+        }
+
+        function renderMainView() {
+            if (currentCategoryFilter === 'Todos') {
+                renderCategoryCovers();
+            } else {
+                const filtered = products.filter(p => p.category === currentCategoryFilter);
+                renderProducts(filtered);
+            }
+        }
+
+        function renderCategoryCovers() {
+            Object.values(carouselIntervals).forEach(clearInterval);
+            carouselIntervals = {};
+
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+
+            if (!categoryOrder.length) {
+                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">No hay categorías creadas.</p>';
+                return;
+            }
+
+            categoryOrder.forEach(cat => {
+                const firstProduct = products.find(p => p.category === cat);
+                if (!firstProduct) return;
+
+                const firstImg = (firstProduct.image || '').split(',')[0].trim();
+
+                const card = document.createElement('div');
+                card.className = 'product-card category-cover-card';
+                card.onclick = () => filterProducts(cat);
+
+                card.innerHTML = `
+                    <div class="img-container">
+                        <img src="${firstImg}" class="product-img">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">${cat}</h3>
+                        <button class="btn-contact" style="width: 100%; border: 1px solid var(--primary); cursor: pointer; margin-top: 10px;">Ver Productos</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
         }
 
         function parseColorImages(str) {
@@ -818,7 +1110,7 @@
             container.innerHTML = '';
 
             if (!items.length) {
-                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">No hay productos creados.</p>';
+                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">No hay productos creados en esta categoría.</p>';
                 return;
             }
 
@@ -913,7 +1205,7 @@
             const movedProduct = products.splice(fromIndex, 1)[0];
             products.splice(toIndex, 0, movedProduct);
 
-            renderProducts(products);
+            renderMainView();
 
             for (let i = 0; i < products.length; i++) {
                 await _supabase.from('productos').update({ position: i + 1 }).eq('id', products[i].id);
@@ -996,7 +1288,7 @@
             if (!error) {
                 alert('Configuración guardada correctamente');
                 fetchConfig();
-                renderProducts(products);
+                renderMainView();
             } else {
                 alert('Error al guardar: ' + error.message);
             }
@@ -1094,14 +1386,6 @@
                 const { error } = await _supabase.from('productos').delete().eq('id', id);
                 if (!error) fetchProducts();
             }
-        }
-
-        function toggleAdmin() {
-            document.body.classList.toggle('admin-mode');
-            const panel = document.getElementById('admin-panel');
-            panel.classList.toggle('active');
-            renderProducts(products);
-            if(panel.classList.contains('active')) panel.scrollIntoView({ behavior: 'smooth' });
         }
 
         fetchConfig();
