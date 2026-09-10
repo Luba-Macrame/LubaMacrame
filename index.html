@@ -58,6 +58,30 @@
             font-size: clamp(0.7rem, 2vw, 0.8rem);
             letter-spacing: 0.8px;
             text-transform: uppercase;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .social-header-link {
+            display: inline-flex;
+            align-items: center;
+            color: #ffffff;
+            opacity: 0.85;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .social-header-link:hover {
+            opacity: 1;
+            transform: scale(1.15);
+        }
+
+        .social-header-link svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
         }
 
         header {
@@ -139,7 +163,6 @@
             transform: translateY(-2px);
         }
 
-        /* MODAL DE LOGIN */
         .login-modal-overlay {
             position: fixed;
             top: 0;
@@ -581,6 +604,56 @@
         .btn-edit-product { background: #3b82f6; }
         .btn-delete-product { background: #dc3545; }
 
+        .instagram-section {
+            text-align: center;
+            padding: 45px 20px;
+            background: #f4efe9;
+            border-top: 1px solid var(--border);
+            margin-top: 20px;
+        }
+
+        .instagram-title {
+            font-family: var(--font-title);
+            font-size: clamp(1.2rem, 3.5vw, 1.6rem);
+            color: var(--primary-dark);
+            margin-bottom: 6px;
+        }
+
+        .instagram-handle {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            letter-spacing: 1px;
+            margin-bottom: 18px;
+            display: block;
+        }
+
+        .btn-instagram {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary);
+            color: #ffffff;
+            padding: 10px 22px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(140, 109, 88, 0.2);
+        }
+
+        .btn-instagram:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-instagram svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
         .cookie-banner {
             position: fixed;
             bottom: 0;
@@ -634,7 +707,12 @@
 </head>
 <body>
 
-    <div class="top-bar" id="top-bar-text">✨ Piezas artesanales hechas a mano</div>
+    <div class="top-bar">
+        <span id="top-bar-text">✨ Piezas artesanales hechas a mano</span>
+        <a id="header-instagram-link" href="https://instagram.com" target="_blank" class="social-header-link" title="Síguenos en Instagram">
+            <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        </a>
+    </div>
 
     <header id="main-header">
         <div class="brand-logo-container">
@@ -646,7 +724,6 @@
 
     <button id="admin-toggle-btn" class="btn-admin-toggle" onclick="handleAdminToggle()">⚙️ <span id="admin-btn-text">Modificar Web</span></button>
 
-    <!-- VENTANA DE AUTENTICACIÓN -->
     <div id="login-modal" class="login-modal-overlay">
         <div class="login-card">
             <button class="close-login-btn" onclick="closeLoginModal()">&times;</button>
@@ -686,6 +763,10 @@
                 <div class="form-group">
                     <label>Teléfono de WhatsApp:</label>
                     <input type="text" id="input-phone">
+                </div>
+                <div class="form-group">
+                    <label>Enlace de Instagram:</label>
+                    <input type="text" id="input-instagram" placeholder="https://instagram.com/tu_cuenta">
                 </div>
                 <div class="form-group">
                     <label>Mostrar Precios en la Tienda:</label>
@@ -801,6 +882,15 @@
         <div class="products-grid" id="products-container"></div>
     </main>
 
+    <section class="instagram-section">
+        <h3 class="instagram-title">Sigue el proceso de elaboración</h3>
+        <span class="instagram-handle" id="instagram-handle-text">@lubamacrame</span>
+        <a id="body-instagram-link" href="https://instagram.com" target="_blank" class="btn-instagram">
+            <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+            <span>Ver en Instagram</span>
+        </a>
+    </section>
+
     <div id="cookie-banner" class="cookie-banner" style="display: none;">
         <span>Utilizamos cookies para garantizar la mejor experiencia.</span>
         <button onclick="acceptCookies()">Aceptar</button>
@@ -810,10 +900,11 @@
         <div class="company-info">
             <h4>Luba Macramé Artesanía</h4>
             <h4>SOBRE NOSOTROS</h4>
-        <p class="footer-description">    
+            <p class="footer-description">    
                 Artesanía macramé con alma canaria. 
                 Tejemos piezas de autor elaboradas artesanalmente, pensadas para quienes valoran la belleza de lo hecho a mano y el diseño con sentido,
-                cuidando cada nudo para unir la calidez del Atlántico, el diseño consciente y la calidad en una sola pieza.</p>
+                cuidando cada nudo para unir la calidez del Atlántico, el diseño consciente y la calidad en una sola pieza.
+            </p>
         </div>
         <p>&copy; <span id="year"></span> Macramé Artesanal.</p>
     </footer>
@@ -829,6 +920,7 @@
         let selectedColors = {}; 
         let carouselIntervals = {};
         let contactPhone = "34600000000";
+        let instagramUrl = "https://instagram.com";
         let showPrices = true;
         let draggedItemIndex = null;
         let isAuthenticated = false;
@@ -849,7 +941,6 @@
             document.getElementById('admin-toggle-btn').classList.add('visible');
         }
 
-        // CONTROL DE SESIÓN Y AUTENTICACIÓN
         _supabase.auth.onAuthStateChange((event, session) => {
             if (session) {
                 isAuthenticated = true;
@@ -932,11 +1023,28 @@
             return cleanName.startsWith('#') ? cleanName : (colorMap[cleanName] || cleanName);
         }
 
+        function updateInstagramLinks(url) {
+            if (!url) return;
+            instagramUrl = url;
+            
+            document.getElementById('header-instagram-link').href = url;
+            document.getElementById('body-instagram-link').href = url;
+            
+            const handleInput = document.getElementById('input-instagram');
+            if (handleInput) handleInput.value = url;
+
+            const cleanHandle = url.replace(/\/$/, '').split('/').pop();
+            if (cleanHandle) {
+                document.getElementById('instagram-handle-text').textContent = '@' + cleanHandle;
+            }
+        }
+
         async function fetchConfig() {
             try {
                 const { data } = await _supabase.from('configuracion').select('*').eq('id', 'main').single();
                 if (data) {
                     if (data.phone) { contactPhone = data.phone; document.getElementById('input-phone').value = data.phone; }
+                    if (data.instagram_url) { updateInstagramLinks(data.instagram_url); }
                     if (data.title) { document.getElementById('site-title').textContent = data.title; document.getElementById('input-title').value = data.title; }
                     if (data.subtitle) { document.getElementById('site-subtitle').textContent = data.subtitle; document.getElementById('input-subtitle').value = data.subtitle; }
                     if (data.topbar) { document.getElementById('top-bar-text').textContent = data.topbar; document.getElementById('input-topbar').value = data.topbar; }
@@ -959,11 +1067,6 @@
                         showPrices = data.show_prices === true || data.show_prices === 'true';
                         document.getElementById('select-show-prices').value = showPrices ? "true" : "false";
                     }
-
-                    if (products.length > 0) {
-                        renderCategoriesNav();
-                        renderMainView();
-                    }
                 }
             } catch (err) { console.error(err); }
         }
@@ -977,11 +1080,17 @@
 
             if (!error) {
                 products = data || [];
-                syncCategoryOrder();
-                renderCategoriesNav();
-                renderMainView();
-                renderAdminCategoryManager();
             }
+        }
+
+        async function initApp() {
+            await fetchConfig();
+            await fetchProducts();
+            
+            syncCategoryOrder();
+            renderCategoriesNav();
+            renderMainView();
+            renderAdminCategoryManager();
         }
 
         function syncCategoryOrder() {
@@ -1068,10 +1177,7 @@
             if (currentCategoryFilter === 'Todos') {
                 renderCategoryCovers();
             } else {
-                // 1. Objetos donde es su categoría PRINCIPAL
                 const mainProducts = products.filter(p => p.category === currentCategoryFilter);
-
-                // 2. Objetos donde es categoría SECUNDARIA
                 const secondaryProducts = products.filter(p => {
                     if (p.category === currentCategoryFilter) return false;
                     if (!p.secondary_categories) return false;
@@ -1079,7 +1185,6 @@
                     return secondaries.includes(currentCategoryFilter.toLowerCase());
                 });
 
-                // Unimos ambas listas en orden
                 renderProducts([...mainProducts, ...secondaryProducts]);
             }
         }
@@ -1303,6 +1408,7 @@
 
         async function updateTexts() {
             showPrices = document.getElementById('select-show-prices').value === "true";
+            const newInsta = document.getElementById('input-instagram').value;
             
             const payload = {
                 id: 'main',
@@ -1310,13 +1416,15 @@
                 subtitle: document.getElementById('input-subtitle').value,
                 topbar: document.getElementById('input-topbar').value,
                 phone: document.getElementById('input-phone').value,
+                instagram_url: newInsta,
                 show_prices: showPrices
             };
 
             const { error } = await _supabase.from('configuracion').upsert([payload]);
             if (!error) {
                 alert('Configuración guardada correctamente');
-                fetchConfig();
+                updateInstagramLinks(newInsta);
+                await fetchConfig();
                 renderMainView();
             } else {
                 alert('Error al guardar: ' + error.message);
@@ -1331,7 +1439,7 @@
             }]);
             if (!error) {
                 alert('Tipografías guardadas');
-                fetchConfig();
+                await fetchConfig();
             }
         }
 
@@ -1356,7 +1464,7 @@
                     document.getElementById('site-favicon').href = faviconValue;
                 }
                 alert('Imágenes de marca y favicon guardados correctamente');
-                fetchConfig();
+                await fetchConfig();
             } else {
                 alert('Error al guardar: ' + error.message);
             }
@@ -1382,7 +1490,10 @@
             if (!response.error) {
                 alert(id ? "Producto actualizado" : "Producto subido");
                 resetProductForm();
-                fetchProducts();
+                await fetchProducts();
+                syncCategoryOrder();
+                renderCategoriesNav();
+                renderMainView();
             } else {
                 alert("Error: " + response.error.message);
             }
@@ -1416,12 +1527,16 @@
         async function deleteProduct(id) {
             if (confirm('¿Eliminar producto?')) {
                 const { error } = await _supabase.from('productos').delete().eq('id', id);
-                if (!error) fetchProducts();
+                if (!error) {
+                    await fetchProducts();
+                    syncCategoryOrder();
+                    renderCategoriesNav();
+                    renderMainView();
+                }
             }
         }
 
-        fetchConfig();
-        fetchProducts();
+        initApp();
     </script>
 </body>
 </html>
