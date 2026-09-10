@@ -844,97 +844,6 @@
         _supabase.auth.onAuthStateChange((event, session) => {
             if (session) {
                 isAuthenticated = true;
-                document.getElementById('admin-btn-text').textContent = "Cerrar Sesión";
-            } else {
-                isAuthenticated = false;
-                document.getElementById('admin-btn-text').textContent = "Modificar Web";
-                closeAdminPanel(); // Oculta el panel y regresa a la vista de cliente
-            }
-        });
-
-        async function handleAdminToggle() {
-            if (isAuthenticated) {
-                // Si ya inició sesión, al presionar el botón se cierra la sesión por completo
-                const { error } = await _supabase.auth.signOut();
-                if (error) {
-                    alert('Error al cerrar sesión: ' + error.message);
-                } else {
-                    alert('Sesión cerrada correctamente');
-                }
-            } else {
-                // Si no está logueado, abre el modal para pedir usuario y clave
-                document.getElementById('login-modal').classList.add('active');
-            }
-        }
-        
-
-        function handleAdminToggle() {
-           if (isAuthenticated) {
-        // Si ya inició sesión, al presionar el botón se cierra la sesión por completo
-        const { error } = await _supabase.auth.signOut();
-        if (error) {
-            alert('Error al cerrar sesión: ' + error.message);
-        } else {
-            alert('Sesión cerrada correctamente');
-        }
-    } else {
-        // Si no está logueado, abre el modal para pedir usuario y clave
-        document.getElementById('login-modal').classList.add('active');
-    }
-        }
-
-        function closeLoginModal() {
-            document.getElementById('login-modal').classList.remove('active');
-        }
-
-        async function loginUser(e) {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-
-            const { data, error } = await _supabase.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
-
-            if (error) {
-                alert("Acceso denegado: " + error.message);
-            } else {
-                closeLoginModal();
-                openAdminPanel();
-            }
-        }
-
-        function openAdminPanel() {
-            document.body.classList.add('admin-mode');
-            const panel = document.getElementById('admin-panel');
-            panel.classList.add('active');
-            syncCategoryOrder();
-            renderAdminCategoryManager();
-            renderCategoriesNav();
-            renderMainView();
-            panel.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function closeAdminPanel() {
-            document.body.classList.remove('admin-mode');
-            const panel = document.getElementById('admin-panel');
-            panel.classList.remove('active');
-            renderMainView();
-        }
-
-        const colorMap = {
-            'blanco': '#ffffff', 'negro': '#222222', 'rojo': '#e63946',
-            'azul': '#1d3557', 'azul marino': '#000080', 'verde': '#2a9d8f',
-            'amarillo': '#e9c46a', 'rosa': '#ffb5C0', 'beige': '#f5f5dc',
-            'crudo': '#fdf5e6', 'mostaza': '#e3a857', 'terracota': '#cb6d51',
-            'gris': '#888888', 'morado': '#800080', 'lila': '#c8a2c8',
-            'naranja': '#f8961e', 'marrón': '#7f4f24', 'marron': '#7f4f24'
-        };
-// CONTROL DE SESIÓN Y AUTENTICACIÓN
-        _supabase.auth.onAuthStateChange((event, session) => {
-            if (session) {
-                isAuthenticated = true;
                 const btnText = document.getElementById('admin-btn-text');
                 if (btnText) btnText.textContent = "Cerrar Sesión";
             } else {
@@ -999,6 +908,16 @@
             if (panel) panel.classList.remove('active');
             renderMainView();
         }
+
+        const colorMap = {
+            'blanco': '#ffffff', 'negro': '#222222', 'rojo': '#e63946',
+            'azul': '#1d3557', 'azul marino': '#000080', 'verde': '#2a9d8f',
+            'amarillo': '#e9c46a', 'rosa': '#ffb5C0', 'beige': '#f5f5dc',
+            'crudo': '#fdf5e6', 'mostaza': '#e3a857', 'terracota': '#cb6d51',
+            'gris': '#888888', 'morado': '#800080', 'lila': '#c8a2c8',
+            'naranja': '#f8961e', 'marrón': '#7f4f24', 'marron': '#7f4f24'
+        };
+
         function getColorCode(colorName) {
             const cleanName = colorName.trim().toLowerCase();
             return cleanName.startsWith('#') ? cleanName : (colorMap[cleanName] || cleanName);
