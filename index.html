@@ -760,8 +760,12 @@
                             <input type="text" id="p-title" required>
                         </div>
                         <div class="form-group">
-                            <label>Categoría:</label>
-                            <input type="text" id="p-category" required>
+                            <label>Categoría Principal:</label>
+                            <input type="text" id="p-category" required placeholder="Ej. Tapices">
+                        </div>
+                        <div class="form-group">
+                            <label>Categorías Secundarias (separadas por comas):</label>
+                            <input type="text" id="p-secondary-categories" placeholder="Ej. Regalos, Salón, Ofertas">
                         </div>
                         <div class="form-group">
                             <label>Precio (€):</label>
@@ -805,6 +809,11 @@
     <footer>
         <div class="company-info">
             <h4>Luba Macramé Artesanía</h4>
+            <h4>SOBRE NOSOTROS</h4>
+        <p class="footer-description">    
+                Artesanía macramé con alma canaria. 
+                Tejemos piezas de autor elaboradas artesanalmente, pensadas para quienes valoran la belleza de lo hecho a mano y el diseño con sentido,
+                cuidando cada nudo para unir la calidez del Atlántico, el diseño consciente y la calidad en una sola pieza.</p>
         </div>
         <p>&copy; <span id="year"></span> Macramé Artesanal.</p>
     </footer>
@@ -950,11 +959,6 @@
                         showPrices = data.show_prices === true || data.show_prices === 'true';
                         document.getElementById('select-show-prices').value = showPrices ? "true" : "false";
                     }
-
-                    if (products.length > 0) {
-                        renderCategoriesNav();
-                        renderMainView();
-                    }
                 }
             } catch (err) { console.error(err); }
         }
@@ -968,15 +972,27 @@
 
             if (!error) {
                 products = data || [];
-                syncCategoryOrder();
-                renderCategoriesNav();
-                renderMainView();
-                renderAdminCategoryManager();
             }
         }
 
+        // CARGA SECUENCIAL SIN CONDICIÓN DE CARRERA
+        async function initApp() {
+            await fetchConfig();
+            await fetchProducts();
+            
+            syncCategoryOrder();
+            renderCategoriesNav();
+            renderMainView();
+            renderAdminCategoryManager();
+        }
+
         function syncCategoryOrder() {
-            const existingCategories = [...new Set(products.map(p => p.category).filter(Boolean))];
+            const primaryCats = products.map(p => p.category).filter(Boolean);
+            const secondaryCats = products.flatMap(p => 
+                p.secondary_categories ? p.secondary_categories.split(',').map(c => c.trim()) : []
+            ).filter(Boolean);
+
+            const existingCategories = [...new Set([...primaryCats, ...secondaryCats])];
             
             categoryOrder = categoryOrder.filter(c => existingCategories.includes(c));
             existingCategories.forEach(c => {
@@ -1054,8 +1070,19 @@
             if (currentCategoryFilter === 'Todos') {
                 renderCategoryCovers();
             } else {
-                const filtered = products.filter(p => p.category === currentCategoryFilter);
-                renderProducts(filtered);
+                // 1. Objetos donde es su categoría PRINCIPAL
+                const mainProducts = products.filter(p => p.category === currentCategoryFilter);
+
+                // 2. Objetos donde es categoría SECUNDARIA
+                const secondaryProducts = products.filter(p => {
+                    if (p.category === currentCategoryFilter) return false;
+                    if (!p.secondary_categories) return false;
+                    const secondaries = p.secondary_categories.split(',').map(c => c.trim().toLowerCase());
+                    return secondaries.includes(currentCategoryFilter.toLowerCase());
+                });
+
+                // Unimos ambas listas en orden
+                renderProducts([...mainProducts, ...secondaryProducts]);
             }
         }
 
@@ -1072,7 +1099,7 @@
             }
 
             categoryOrder.forEach(cat => {
-                const firstProduct = products.find(p => p.category === cat);
+                const firstProduct = products.find(p => p.category === cat || (p.secondary_categories && p.secondary_categories.toLowerCase().includes(cat.toLowerCase())));
                 if (!firstProduct) return;
 
                 const firstImg = (firstProduct.image || '').split(',')[0].trim();
@@ -1291,7 +1318,7 @@
             const { error } = await _supabase.from('configuracion').upsert([payload]);
             if (!error) {
                 alert('Configuración guardada correctamente');
-                fetchConfig();
+                await fetchConfig();
                 renderMainView();
             } else {
                 alert('Error al guardar: ' + error.message);
@@ -1306,7 +1333,7 @@
             }]);
             if (!error) {
                 alert('Tipografías guardadas');
-                fetchConfig();
+                await fetchConfig();
             }
         }
 
@@ -1331,7 +1358,7 @@
                     document.getElementById('site-favicon').href = faviconValue;
                 }
                 alert('Imágenes de marca y favicon guardados correctamente');
-                fetchConfig();
+                await fetchConfig();
             } else {
                 alert('Error al guardar: ' + error.message);
             }
@@ -1343,6 +1370,7 @@
             const productPayload = {
                 title: document.getElementById('p-title').value,
                 category: document.getElementById('p-category').value,
+                secondary_categories: document.getElementById('p-secondary-categories').value,
                 price: parseFloat(document.getElementById('p-price').value),
                 colors: document.getElementById('p-colors').value,
                 image: document.getElementById('p-image-url').value,
@@ -1356,7 +1384,10 @@
             if (!response.error) {
                 alert(id ? "Producto actualizado" : "Producto subido");
                 resetProductForm();
-                fetchProducts();
+                await fetchProducts();
+                syncCategoryOrder();
+                renderCategoriesNav();
+                renderMainView();
             } else {
                 alert("Error: " + response.error.message);
             }
@@ -1366,6 +1397,7 @@
             document.getElementById('p-id').value = product.id;
             document.getElementById('p-title').value = product.title;
             document.getElementById('p-category').value = product.category;
+            document.getElementById('p-secondary-categories').value = product.secondary_categories || '';
             document.getElementById('p-price').value = product.price;
             document.getElementById('p-colors').value = product.colors || '';
             document.getElementById('p-image-url').value = product.image || '';
@@ -1380,6 +1412,7 @@
         function resetProductForm() {
             document.getElementById('add-product-form').reset();
             document.getElementById('p-id').value = '';
+            document.getElementById('p-secondary-categories').value = '';
             document.getElementById('form-product-heading').textContent = "4. Subir / Editar Producto";
             document.getElementById('btn-save-product').textContent = "Publicar Producto";
             document.getElementById('btn-cancel-edit').style.display = "none";
@@ -1388,12 +1421,17 @@
         async function deleteProduct(id) {
             if (confirm('¿Eliminar producto?')) {
                 const { error } = await _supabase.from('productos').delete().eq('id', id);
-                if (!error) fetchProducts();
+                if (!error) {
+                    await fetchProducts();
+                    syncCategoryOrder();
+                    renderCategoriesNav();
+                    renderMainView();
+                }
             }
         }
 
-        fetchConfig();
-        fetchProducts();
+        // Iniciar la app sincronizadamente
+        initApp();
     </script>
 </body>
 </html>
