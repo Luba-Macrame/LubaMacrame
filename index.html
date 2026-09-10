@@ -605,19 +605,21 @@
         .btn-delete-product { background: #dc3545; }
 
         .instagram-section {
-            text-align: center;
-            padding: 45px 20px;
-            background: #f4efe9;
-            border-top: 1px solid var(--border);
-            margin-top: 20px;
-        }
+    text-align: center;
+    padding: 20px 15px; /* Reducido de 45px a 20px arriba y abajo */
+    background: #f4efe9;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin-top: 15px;  /* Reducido la distancia con el contenido superior */
+}
 
-        .instagram-title {
-            font-family: var(--font-title);
-            font-size: clamp(1.2rem, 3.5vw, 1.6rem);
-            color: var(--primary-dark);
-            margin-bottom: 6px;
-        }
+/* Ajuste adicional opcional para pegar más el título al botón */
+.instagram-title {
+    font-family: var(--font-title);
+    font-size: clamp(1.1rem, 3vw, 1.4rem);
+    color: var(--primary-dark);
+    margin-bottom: 10px; /* Separación justa con el botón */
+}
 
         .instagram-handle {
             font-size: 0.85rem;
