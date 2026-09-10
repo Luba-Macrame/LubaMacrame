@@ -931,7 +931,74 @@
             'gris': '#888888', 'morado': '#800080', 'lila': '#c8a2c8',
             'naranja': '#f8961e', 'marrón': '#7f4f24', 'marron': '#7f4f24'
         };
+// CONTROL DE SESIÓN Y AUTENTICACIÓN
+        _supabase.auth.onAuthStateChange((event, session) => {
+            if (session) {
+                isAuthenticated = true;
+                const btnText = document.getElementById('admin-btn-text');
+                if (btnText) btnText.textContent = "Cerrar Sesión";
+            } else {
+                isAuthenticated = false;
+                const btnText = document.getElementById('admin-btn-text');
+                if (btnText) btnText.textContent = "Modificar Web";
+                closeAdminPanel();
+            }
+        });
 
+        async function handleAdminToggle() {
+            if (isAuthenticated) {
+                const { error } = await _supabase.auth.signOut();
+                if (error) {
+                    alert('Error al cerrar sesión: ' + error.message);
+                } else {
+                    alert('Sesión cerrada correctamente');
+                }
+            } else {
+                document.getElementById('login-modal').classList.add('active');
+            }
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal').classList.remove('active');
+        }
+
+        async function loginUser(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            const { data, error } = await _supabase.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                alert("Acceso denegado: " + error.message);
+            } else {
+                closeLoginModal();
+                openAdminPanel();
+            }
+        }
+
+        function openAdminPanel() {
+            document.body.classList.add('admin-mode');
+            const panel = document.getElementById('admin-panel');
+            if (panel) panel.classList.add('active');
+            
+            syncCategoryOrder();
+            renderAdminCategoryManager();
+            renderCategoriesNav();
+            renderMainView();
+            
+            if (panel) panel.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function closeAdminPanel() {
+            document.body.classList.remove('admin-mode');
+            const panel = document.getElementById('admin-panel');
+            if (panel) panel.classList.remove('active');
+            renderMainView();
+        }
         function getColorCode(colorName) {
             const cleanName = colorName.trim().toLowerCase();
             return cleanName.startsWith('#') ? cleanName : (colorMap[cleanName] || cleanName);
