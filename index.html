@@ -139,6 +139,52 @@
             transform: translateY(-2px);
         }
 
+        /* MODAL DE LOGIN */
+        .login-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        .login-modal-overlay.active {
+            display: flex;
+        }
+
+        .login-card {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 380px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .login-card h3 {
+            font-family: var(--font-title);
+            color: var(--primary);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .close-login-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #888;
+        }
+
         #admin-panel {
             display: none;
             background: #ffffff;
@@ -598,7 +644,26 @@
         <p id="site-subtitle">NUDO A NUDO, TEJEMOS HISTORIAS PARA TI</p>
     </header>
 
-    <button id="admin-toggle-btn" class="btn-admin-toggle" onclick="toggleAdmin()">⚙️ <span>Modificar Web</span></button>
+    <button id="admin-toggle-btn" class="btn-admin-toggle" onclick="handleAdminToggle()">⚙️ <span id="admin-btn-text">Modificar Web</span></button>
+
+    <!-- VENTANA DE AUTENTICACIÓN -->
+    <div id="login-modal" class="login-modal-overlay">
+        <div class="login-card">
+            <button class="close-login-btn" onclick="closeLoginModal()">&times;</button>
+            <h3>Acceso de Administración</h3>
+            <form id="login-form" onsubmit="loginUser(event)">
+                <div class="form-group">
+                    <label>Correo Electrónico:</label>
+                    <input type="email" id="login-email" required placeholder="admin@ejemplo.com">
+                </div>
+                <div class="form-group">
+                    <label>Contraseña:</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn-submit">Iniciar Sesión</button>
+            </form>
+        </div>
+    </div>
 
     <section id="admin-panel">
         <h2>Panel de Personalización</h2>
@@ -695,8 +760,12 @@
                             <input type="text" id="p-title" required>
                         </div>
                         <div class="form-group">
-                            <label>Categoría:</label>
-                            <input type="text" id="p-category" required>
+                            <label>Categoría Principal:</label>
+                            <input type="text" id="p-category" required placeholder="Ej. Tapices">
+                        </div>
+                        <div class="form-group">
+                            <label>Categorías Secundarias (separadas por comas):</label>
+                            <input type="text" id="p-secondary-categories" placeholder="Ej. Regalos, Salón, Ofertas">
                         </div>
                         <div class="form-group">
                             <label>Precio (€):</label>
@@ -757,6 +826,7 @@
         let contactPhone = "34600000000";
         let showPrices = true;
         let draggedItemIndex = null;
+        let isAuthenticated = false;
 
         document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -772,6 +842,75 @@
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('admin') === 'true') {
             document.getElementById('admin-toggle-btn').classList.add('visible');
+        }
+
+        // CONTROL DE SESIÓN Y AUTENTICACIÓN
+        _supabase.auth.onAuthStateChange((event, session) => {
+            if (session) {
+                isAuthenticated = true;
+                const btnText = document.getElementById('admin-btn-text');
+                if (btnText) btnText.textContent = "Cerrar Sesión";
+            } else {
+                isAuthenticated = false;
+                const btnText = document.getElementById('admin-btn-text');
+                if (btnText) btnText.textContent = "Modificar Web";
+                closeAdminPanel();
+            }
+        });
+
+        async function handleAdminToggle() {
+            if (isAuthenticated) {
+                const { error } = await _supabase.auth.signOut();
+                if (error) {
+                    alert('Error al cerrar sesión: ' + error.message);
+                } else {
+                    alert('Sesión cerrada correctamente');
+                }
+            } else {
+                document.getElementById('login-modal').classList.add('active');
+            }
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal').classList.remove('active');
+        }
+
+        async function loginUser(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            const { data, error } = await _supabase.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                alert("Acceso denegado: " + error.message);
+            } else {
+                closeLoginModal();
+                openAdminPanel();
+            }
+        }
+
+        function openAdminPanel() {
+            document.body.classList.add('admin-mode');
+            const panel = document.getElementById('admin-panel');
+            if (panel) panel.classList.add('active');
+            
+            syncCategoryOrder();
+            renderAdminCategoryManager();
+            renderCategoriesNav();
+            renderMainView();
+            
+            if (panel) panel.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function closeAdminPanel() {
+            document.body.classList.remove('admin-mode');
+            const panel = document.getElementById('admin-panel');
+            if (panel) panel.classList.remove('active');
+            renderMainView();
         }
 
         const colorMap = {
@@ -841,7 +980,12 @@
         }
 
         function syncCategoryOrder() {
-            const existingCategories = [...new Set(products.map(p => p.category).filter(Boolean))];
+            const primaryCats = products.map(p => p.category).filter(Boolean);
+            const secondaryCats = products.flatMap(p => 
+                p.secondary_categories ? p.secondary_categories.split(',').map(c => c.trim()) : []
+            ).filter(Boolean);
+
+            const existingCategories = [...new Set([...primaryCats, ...secondaryCats])];
             
             categoryOrder = categoryOrder.filter(c => existingCategories.includes(c));
             existingCategories.forEach(c => {
@@ -919,8 +1063,19 @@
             if (currentCategoryFilter === 'Todos') {
                 renderCategoryCovers();
             } else {
-                const filtered = products.filter(p => p.category === currentCategoryFilter);
-                renderProducts(filtered);
+                // 1. Objetos donde es su categoría PRINCIPAL
+                const mainProducts = products.filter(p => p.category === currentCategoryFilter);
+
+                // 2. Objetos donde es categoría SECUNDARIA
+                const secondaryProducts = products.filter(p => {
+                    if (p.category === currentCategoryFilter) return false;
+                    if (!p.secondary_categories) return false;
+                    const secondaries = p.secondary_categories.split(',').map(c => c.trim().toLowerCase());
+                    return secondaries.includes(currentCategoryFilter.toLowerCase());
+                });
+
+                // Unimos ambas listas en orden
+                renderProducts([...mainProducts, ...secondaryProducts]);
             }
         }
 
@@ -937,7 +1092,7 @@
             }
 
             categoryOrder.forEach(cat => {
-                const firstProduct = products.find(p => p.category === cat);
+                const firstProduct = products.find(p => p.category === cat || (p.secondary_categories && p.secondary_categories.toLowerCase().includes(cat.toLowerCase())));
                 if (!firstProduct) return;
 
                 const firstImg = (firstProduct.image || '').split(',')[0].trim();
@@ -1208,6 +1363,7 @@
             const productPayload = {
                 title: document.getElementById('p-title').value,
                 category: document.getElementById('p-category').value,
+                secondary_categories: document.getElementById('p-secondary-categories').value,
                 price: parseFloat(document.getElementById('p-price').value),
                 colors: document.getElementById('p-colors').value,
                 image: document.getElementById('p-image-url').value,
@@ -1231,6 +1387,7 @@
             document.getElementById('p-id').value = product.id;
             document.getElementById('p-title').value = product.title;
             document.getElementById('p-category').value = product.category;
+            document.getElementById('p-secondary-categories').value = product.secondary_categories || '';
             document.getElementById('p-price').value = product.price;
             document.getElementById('p-colors').value = product.colors || '';
             document.getElementById('p-image-url').value = product.image || '';
@@ -1245,6 +1402,7 @@
         function resetProductForm() {
             document.getElementById('add-product-form').reset();
             document.getElementById('p-id').value = '';
+            document.getElementById('p-secondary-categories').value = '';
             document.getElementById('form-product-heading').textContent = "4. Subir / Editar Producto";
             document.getElementById('btn-save-product').textContent = "Publicar Producto";
             document.getElementById('btn-cancel-edit').style.display = "none";
@@ -1255,22 +1413,6 @@
                 const { error } = await _supabase.from('productos').delete().eq('id', id);
                 if (!error) fetchProducts();
             }
-        }
-
-        function toggleAdmin() {
-            document.body.classList.toggle('admin-mode');
-    const panel = document.getElementById('admin-panel');
-    panel.classList.toggle('active');
-    
-    // Al abrir el panel de administración, sincronizamos y refrescamos el orden
-    if (panel.classList.contains('active')) {
-        syncCategoryOrder();
-        renderAdminCategoryManager();
-        renderCategoriesNav();
-        panel.scrollIntoView({ behavior: 'smooth' });
-    }
-    
-    renderMainView();
         }
 
         fetchConfig();
