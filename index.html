@@ -842,15 +842,30 @@
 
         // CONTROL DE SESIÓN Y AUTENTICACIÓN
         _supabase.auth.onAuthStateChange((event, session) => {
-          if (session) {
-        isAuthenticated = true;
-        document.getElementById('admin-btn-text').textContent = "Cerrar Sesión";
-    } else {
-        isAuthenticated = false;
-        document.getElementById('admin-btn-text').textContent = "Modificar Web";
-        closeAdminPanel(); // Oculta el panel y regresa a la vista de cliente
-    }
+            if (session) {
+                isAuthenticated = true;
+                document.getElementById('admin-btn-text').textContent = "Cerrar Sesión";
+            } else {
+                isAuthenticated = false;
+                document.getElementById('admin-btn-text').textContent = "Modificar Web";
+                closeAdminPanel(); // Oculta el panel y regresa a la vista de cliente
             }
+        });
+
+        async function handleAdminToggle() {
+            if (isAuthenticated) {
+                // Si ya inició sesión, al presionar el botón se cierra la sesión por completo
+                const { error } = await _supabase.auth.signOut();
+                if (error) {
+                    alert('Error al cerrar sesión: ' + error.message);
+                } else {
+                    alert('Sesión cerrada correctamente');
+                }
+            } else {
+                // Si no está logueado, abre el modal para pedir usuario y clave
+                document.getElementById('login-modal').classList.add('active');
+            }
+        }
         
 
         function handleAdminToggle() {
