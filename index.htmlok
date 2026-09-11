@@ -163,7 +163,7 @@
             transform: translateY(-2px);
         }
 
-        .login-modal-overlay {
+        .login-modal-overlay, .legal-modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -176,34 +176,53 @@
             z-index: 3000;
         }
 
-        .login-modal-overlay.active {
+        .login-modal-overlay.active, .legal-modal-overlay.active {
             display: flex;
         }
 
-        .login-card {
+        .login-card, .legal-card {
             background: #ffffff;
             padding: 25px;
             border-radius: 12px;
             width: 90%;
-            max-width: 380px;
+            max-width: 650px;
+            max-height: 80vh;
+            overflow-y: auto;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             position: relative;
         }
 
-        .login-card h3 {
+        .login-card h3, .legal-card h3 {
             font-family: var(--font-title);
             color: var(--primary);
             margin-bottom: 15px;
             text-align: center;
         }
 
-        .close-login-btn {
+        .legal-card h4 {
+            margin-top: 15px;
+            margin-bottom: 5px;
+            color: var(--primary-dark);
+        }
+
+        .legal-card p, .legal-card ul {
+            font-size: 0.85rem;
+            color: var(--text-main);
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .legal-card ul {
+            padding-left: 20px;
+        }
+
+        .close-login-btn, .close-legal-btn {
             position: absolute;
             top: 10px;
             right: 15px;
             background: none;
             border: none;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             cursor: pointer;
             color: #888;
         }
@@ -605,21 +624,20 @@
         .btn-delete-product { background: #dc3545; }
 
         .instagram-section {
-    text-align: center;
-    padding: 20px 15px; /* Reducido de 45px a 20px arriba y abajo */
-    background: #f4efe9;
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    margin-top: 15px;  /* Reducido la distancia con el contenido superior */
-}
+            text-align: center;
+            padding: 20px 15px;
+            background: #f4efe9;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            margin-top: 15px;
+        }
 
-/* Ajuste adicional opcional para pegar más el título al botón */
-.instagram-title {
-    font-family: var(--font-title);
-    font-size: clamp(1.1rem, 3vw, 1.4rem);
-    color: var(--primary-dark);
-    margin-bottom: 10px; /* Separación justa con el botón */
-}
+        .instagram-title {
+            font-family: var(--font-title);
+            font-size: clamp(1.1rem, 3vw, 1.4rem);
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
 
         .instagram-handle {
             font-size: 0.85rem;
@@ -705,20 +723,38 @@
             margin-bottom: 6px;
             font-family: var(--font-title);
         }
+
+        .footer-legal-links {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .footer-legal-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.78rem;
+            cursor: pointer;
+        }
+
+        .footer-legal-links a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
 
     <div class="top-bar">
         <span id="top-bar-text">✨ Piezas artesanales hechas a mano</span>
-       
     </div>
 
     <header id="main-header">
         <div class="brand-logo-container">
             <img id="site-logo" class="brand-logo" src="https://i.ibb.co/yBxhfVJs/logo-blanco.png" alt="Logo Marca">
         </div>
-        <h1 id="site-title">Tu Tienda de Macramé</h1>
+        <h1 id="site-title">Luba Macramé</h1>
         <p id="site-subtitle">NUDO A NUDO, TEJEMOS HISTORIAS PARA TI</p>
     </header>
 
@@ -739,6 +775,15 @@
                 </div>
                 <button type="submit" class="btn-submit">Iniciar Sesión</button>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL PARA TEXTOS LEGALES (PERSONA FÍSICA) -->
+    <div id="legal-modal" class="legal-modal-overlay">
+        <div class="legal-card">
+            <button class="close-legal-btn" onclick="closeLegalModal()">&times;</button>
+            <h3 id="legal-modal-title">Texto Legal</h3>
+            <div id="legal-modal-body"></div>
         </div>
     </div>
 
@@ -766,10 +811,10 @@
                 </div>
                 <div class="form-group">
                     <label>Enlace de Instagram:</label>
-                    <input type="text" id="input-instagram" placeholder="https://instagram.com/tu_cuenta">
+                    <input type="text" id="input-instagram" placeholder="https://www.instagram.com/macrameluba">
                 </div>
                 <div class="form-group">
-                    <label>Mostrar Precios en la Tienda:</label>
+                    <label>Mostrar Precios Orientativos:</label>
                     <select id="select-show-prices">
                         <option value="true">Sí (Mostrar precios)</option>
                         <option value="false">No (Ocultar precios)</option>
@@ -832,12 +877,12 @@
             </div>
 
             <div class="admin-section" style="grid-column: 1 / -1;">
-                <h3 id="form-product-heading">4. Subir / Editar Producto</h3>
+                <h3 id="form-product-heading">4. Subir / Editar Pieza de Catálogo</h3>
                 <form id="add-product-form" onsubmit="saveProduct(event)">
                     <input type="hidden" id="p-id">
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
                         <div class="form-group">
-                            <label>Nombre del Producto:</label>
+                            <label>Nombre de la Pieza:</label>
                             <input type="text" id="p-title" required>
                         </div>
                         <div class="form-group">
@@ -846,10 +891,10 @@
                         </div>
                         <div class="form-group">
                             <label>Categorías Secundarias (separadas por comas):</label>
-                            <input type="text" id="p-secondary-categories" placeholder="Ej. Regalos, Salón, Ofertas">
+                            <input type="text" id="p-secondary-categories" placeholder="Ej. Regalos, Salón">
                         </div>
                         <div class="form-group">
-                            <label>Precio (€):</label>
+                            <label>Precio Orientativo (€):</label>
                             <input type="number" step="0.01" id="p-price" required>
                         </div>
                         <div class="form-group">
@@ -866,7 +911,7 @@
                         </div>
                     </div>
                     <div style="display: flex; gap: 10px; margin-top: 8px;">
-                        <button type="submit" class="btn-submit" id="btn-save-product">Publicar Producto</button>
+                        <button type="submit" class="btn-submit" id="btn-save-product">Publicar en Catálogo</button>
                         <button type="button" class="btn-submit" id="btn-cancel-edit" style="background: #777; display: none;" onclick="resetProductForm()">Cancelar</button>
                     </div>
                 </form>
@@ -882,30 +927,35 @@
         <div class="products-grid" id="products-container"></div>
     </main>
 
-<section class="instagram-section">
-    <h3 class="instagram-title">Sigue el proceso de elaboración</h3>
-    <a id="body-instagram-link" href="https://instagram.com" target="_blank" class="btn-instagram">
-        <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-        <span id="instagram-handle-text">@macrameluba</span>
-    </a>
-</section>
+    <section class="instagram-section">
+        <h3 class="instagram-title">Sigue el proceso de elaboración</h3>
+        <a id="body-instagram-link" href="https://www.instagram.com/macrameluba" target="_blank" class="btn-instagram">
+            <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+            <span id="instagram-handle-text">@macrameluba</span>
+        </a>
+    </section>
 
     <div id="cookie-banner" class="cookie-banner" style="display: none;">
-        <span>Utilizamos cookies para garantizar la mejor experiencia.</span>
+        <span>Utilizamos cookies técnicas para asegurar el funcionamiento del sitio web. Consulta nuestra <a onclick="openLegalModal('cookies')" style="color: #fff; text-decoration: underline; cursor: pointer;">Política de Cookies</a>.</span>
         <button onclick="acceptCookies()">Aceptar</button>
     </div>
 
     <footer>
         <div class="company-info">
             <h4>Luba Macramé Artesanía</h4>
-            <h4>SOBRE NOSOTROS</h4>
             <p class="footer-description">    
                 Artesanía macramé con alma canaria. 
-                Tejemos piezas de autor elaboradas artesanalmente, pensadas para quienes valoran la belleza de lo hecho a mano y el diseño con sentido,
-                cuidando cada nudo para unir la calidez del Atlántico, el diseño consciente y la calidad en una sola pieza.
+                Exposición de piezas de autor elaboradas artesanalmente, pensadas para quienes valoran la belleza de lo hecho a mano y el diseño con sentido.
             </p>
         </div>
-        <p>&copy; <span id="year"></span> Macramé Artesanal.</p>
+        
+        <div class="footer-legal-links">
+            <a onclick="openLegalModal('aviso')">Aviso Legal</a> | 
+            <a onclick="openLegalModal('privacidad')">Política de Privacidad</a> | 
+            <a onclick="openLegalModal('cookies')">Política de Cookies</a>
+        </div>
+
+        <p style="margin-top: 15px;">&copy; <span id="year"></span> Luba Macramé Artesanía. Todos los derechos reservados.</p>
     </footer>
 
     <script>
@@ -919,7 +969,7 @@
         let selectedColors = {}; 
         let carouselIntervals = {};
         let contactPhone = "34600000000";
-        let instagramUrl = "https://instagram.com";
+        let instagramUrl = "https://www.instagram.com/macrameluba";
         let showPrices = true;
         let draggedItemIndex = null;
         let isAuthenticated = false;
@@ -933,6 +983,56 @@
         function acceptCookies() {
             localStorage.setItem('cookiesAccepted', 'true');
             document.getElementById('cookie-banner').style.display = 'none';
+        }
+
+        /* TEXTOS LEGALES ADAPTADOS A PERSONA FÍSICA Y WEB EXPOSITIVA */
+        function openLegalModal(type) {
+            const modal = document.getElementById('legal-modal');
+            const title = document.getElementById('legal-modal-title');
+            const body = document.getElementById('legal-modal-body');
+
+            if (type === 'aviso') {
+                title.textContent = "Aviso Legal";
+                body.innerHTML = `
+                    <p>En cumplimiento del artículo 10 de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y Comercio Electrónico (LSSI-CE), se informa:</p>
+                    <ul>
+                        <li><strong>Titular del sitio web:</strong> [TU NOMBRE Y APELLIDOS]</li>
+                        <li><strong>NIF/NIE:</strong> [TU NIF/NIE]</li>
+                        <li><strong>Residencia / Domicilio:</strong> Canarias, España</li>
+                        <li><strong>Email de contacto:</strong> [TU EMAIL DE CONTACTO]</li>
+                        <li><strong>Contacto WhatsApp:</strong> +${contactPhone}</li>
+                    </ul>
+                    <h4>Naturaleza de la Web</h4>
+                    <p>Este sitio web es un <strong>escaparate digital informativo y expositivo</strong> de piezas de artesanía en macramé elaboradas a mano por persona física. <strong>No constituye una tienda online ni una plataforma de comercio electrónico.</strong> No se realizan ventas directas, cobros ni contratación de servicios a través de esta página web.</p>
+                    <p>Cualquier solicitud de información o consulta sobre las piezas expuestas se atenderá de forma privada y externa a través de WhatsApp o correo electrónico.</p>
+                    <h4>Propiedad Intelectual</h4>
+                    <p>Las fotografías, textos y diseños artesanales mostrados en esta web son obra original de la titular. Queda prohibida su reproducción o uso sin previa autorización.</p>
+                `;
+            } else if (type === 'privacidad') {
+                title.textContent = "Política de Privacidad";
+                body.innerHTML = `
+                    <p>De conformidad con el Reglamento General de Protección de Datos (RGPD) y la LOPDGDD:</p>
+                    <h4>Responsable del Tratamiento</h4>
+                    <p>[TU NOMBRE Y APELLIDOS] - NIF: [TU NIF/NIE] - Email: [TU EMAIL DE CONTACTO]</p>
+                    <h4>Tratamiento de Datos de Contacto</h4>
+                    <p>Los datos facilitados de forma voluntaria al contactar por WhatsApp o email (como nombre o teléfono) solo se emplean para responder a tus dudas sobre las piezas o su elaboración.</p>
+                    <p>No se cederán datos a terceros ni se utilizarán para enviar boletines o publicidad masiva.</p>
+                    <h4>Tus Derechos</h4>
+                    <p>Puedes solicitar el acceso, rectificación o eliminación de tus datos de contacto en cualquier momento escribiendo al correo electrónico indicado.</p>
+                `;
+            } else if (type === 'cookies') {
+                title.textContent = "Política de Cookies";
+                body.innerHTML = `
+                    <p>Este sitio web utiliza únicamente cookies técnicas indispensables para recordar tus preferencias de visualización.</p>
+                    <p>No recopilamos ni rastreamos datos personales con fines publicitarios.</p>
+                `;
+            }
+
+            modal.classList.add('active');
+        }
+
+        function closeLegalModal() {
+            document.getElementById('legal-modal').classList.remove('active');
         }
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -1023,28 +1123,31 @@
         }
 
         function updateInstagramLinks(url) {
-    if (!url) return;
-    instagramUrl = url;
-    
-    document.getElementById('header-instagram-link').href = url;
-    document.getElementById('body-instagram-link').href = url;
-    
-    const handleInput = document.getElementById('input-instagram');
-    if (handleInput) handleInput.value = url;
+            if (!url) return;
+            instagramUrl = url;
+            
+            const headerLink = document.getElementById('header-instagram-link');
+            if (headerLink) headerLink.href = url;
 
-    const cleanHandle = url.replace(/\/$/, '').split('/').pop();
-    const handleSpan = document.getElementById('instagram-handle-text');
-    if (cleanHandle && handleSpan) {
-        handleSpan.textContent = '@' + cleanHandle;
-    }
-}
+            const bodyLink = document.getElementById('body-instagram-link');
+            if (bodyLink) bodyLink.href = url;
+            
+            const handleInput = document.getElementById('input-instagram');
+            if (handleInput) handleInput.value = url;
+
+            const cleanHandle = url.replace(/\/$/, '').split('/').pop();
+            const handleSpan = document.getElementById('instagram-handle-text');
+            if (cleanHandle && handleSpan) {
+                handleSpan.textContent = '@' + cleanHandle;
+            }
+        }
 
         async function fetchConfig() {
             try {
                 const { data } = await _supabase.from('configuracion').select('*').eq('id', 'main').single();
                 if (data) {
                     if (data.phone) { contactPhone = data.phone; document.getElementById('input-phone').value = data.phone; }
-                    if (data.instagram_url) { updateInstagramLinks(data.instagram_url); }
+                    if (data.instagram_url) { updateInstagramLinks(data.instagram_url); } else { updateInstagramLinks(instagramUrl); }
                     if (data.title) { document.getElementById('site-title').textContent = data.title; document.getElementById('input-title').value = data.title; }
                     if (data.subtitle) { document.getElementById('site-subtitle').textContent = data.subtitle; document.getElementById('input-subtitle').value = data.subtitle; }
                     if (data.topbar) { document.getElementById('top-bar-text').textContent = data.topbar; document.getElementById('input-topbar').value = data.topbar; }
@@ -1067,8 +1170,13 @@
                         showPrices = data.show_prices === true || data.show_prices === 'true';
                         document.getElementById('select-show-prices').value = showPrices ? "true" : "false";
                     }
+                } else {
+                    updateInstagramLinks(instagramUrl);
                 }
-            } catch (err) { console.error(err); }
+            } catch (err) { 
+                console.error(err); 
+                updateInstagramLinks(instagramUrl);
+            }
         }
 
         async function fetchProducts() {
@@ -1100,13 +1208,16 @@
             ).filter(Boolean);
 
             const existingCategories = [...new Set([...primaryCats, ...secondaryCats])];
-            
-            categoryOrder = categoryOrder.filter(c => existingCategories.includes(c));
+
+            const savedValidCategories = categoryOrder.filter(c => existingCategories.includes(c));
+
             existingCategories.forEach(c => {
-                if (!categoryOrder.includes(c)) {
-                    categoryOrder.push(c);
+                if (!savedValidCategories.includes(c)) {
+                    savedValidCategories.push(c);
                 }
             });
+
+            categoryOrder = savedValidCategories;
         }
 
         function renderCategoriesNav() {
@@ -1217,7 +1328,7 @@
                     </div>
                     <div class="product-info">
                         <h3 class="product-title">${cat}</h3>
-                        <button class="btn-contact" style="width: 100%; border: 1px solid var(--primary); cursor: pointer; margin-top: 10px;">Ver Productos</button>
+                        <button class="btn-contact" style="width: 100%; border: 1px solid var(--primary); cursor: pointer; margin-top: 10px;">Ver Diseños</button>
                     </div>
                 `;
                 container.appendChild(card);
@@ -1244,7 +1355,7 @@
             container.innerHTML = '';
 
             if (!items.length) {
-                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">No hay productos creados en esta categoría.</p>';
+                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">No hay piezas creadas en esta categoría.</p>';
                 return;
             }
 
@@ -1274,7 +1385,7 @@
                     }
                 }
 
-                const priceHtml = showPrices ? `<p class="product-price">${product.price} €</p>` : '';
+                const priceHtml = showPrices ? `<p class="product-price">${product.price} € <span style="font-size:0.7rem; font-weight:normal; color:#888;">(orientativo)</span></p>` : '';
 
                 const card = document.createElement('div');
                 card.className = 'product-card';
@@ -1324,7 +1435,7 @@
                         <h3 class="product-title">${product.title}</h3>
                         ${priceHtml}
                         ${colorsHtml}
-                        <button onclick="buyProduct(${product.id})" class="btn-contact" style="width: 100%; border: 1px solid var(--primary); cursor: pointer;">💬 Contactar por WhatsApp</button>
+                        <button onclick="buyProduct(${product.id})" class="btn-contact" style="width: 100%; border: 1px solid var(--primary); cursor: pointer;">💬 Consultar disponibilidad</button>
                     </div>
                 `;
                 container.appendChild(card);
@@ -1402,7 +1513,7 @@
                 return;
             }
 
-            const msg = encodeURIComponent(`Hola! Me interesa consultar disponibilidad para comprar "${product.title}"${priceText}${colorText}.`);
+            const msg = encodeURIComponent(`Hola! Me interesa pedir información sobre el diseño de macramé "${product.title}"${priceText}${colorText}.`);
             window.open(`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${msg}`, '_blank');
         }
 
@@ -1463,7 +1574,7 @@
                 if (faviconValue) {
                     document.getElementById('site-favicon').href = faviconValue;
                 }
-                alert('Imágenes de marca y favicon guardados correctamente');
+                alert('Imágenes de marca guardadas');
                 await fetchConfig();
             } else {
                 alert('Error al guardar: ' + error.message);
@@ -1488,15 +1599,25 @@
                 : await _supabase.from('productos').insert([productPayload]);
 
             if (!response.error) {
-                alert(id ? "Producto actualizado" : "Producto subido");
+                alert(id ? "Pieza actualizada" : "Pieza subida");
                 resetProductForm();
                 await fetchProducts();
+                
                 syncCategoryOrder();
+                await saveCategoryOrderSilently();
+
                 renderCategoriesNav();
                 renderMainView();
             } else {
                 alert("Error: " + response.error.message);
             }
+        }
+
+        async function saveCategoryOrderSilently() {
+            await _supabase.from('configuracion').upsert([{
+                id: 'main',
+                category_order: JSON.stringify(categoryOrder)
+            }]);
         }
 
         function startEditProduct(product) {
@@ -1509,7 +1630,7 @@
             document.getElementById('p-image-url').value = product.image || '';
             document.getElementById('p-color-images').value = product.color_images || '';
 
-            document.getElementById('form-product-heading').textContent = "Editar Producto #" + product.id;
+            document.getElementById('form-product-heading').textContent = "Editar Pieza #" + product.id;
             document.getElementById('btn-save-product').textContent = "Guardar Cambios";
             document.getElementById('btn-cancel-edit').style.display = "block";
             document.getElementById('admin-panel').scrollIntoView({ behavior: 'smooth' });
@@ -1519,17 +1640,18 @@
             document.getElementById('add-product-form').reset();
             document.getElementById('p-id').value = '';
             document.getElementById('p-secondary-categories').value = '';
-            document.getElementById('form-product-heading').textContent = "4. Subir / Editar Producto";
-            document.getElementById('btn-save-product').textContent = "Publicar Producto";
+            document.getElementById('form-product-heading').textContent = "4. Subir / Editar Pieza de Catálogo";
+            document.getElementById('btn-save-product').textContent = "Publicar en Catálogo";
             document.getElementById('btn-cancel-edit').style.display = "none";
         }
 
         async function deleteProduct(id) {
-            if (confirm('¿Eliminar producto?')) {
+            if (confirm('¿Eliminar pieza del catálogo?')) {
                 const { error } = await _supabase.from('productos').delete().eq('id', id);
                 if (!error) {
                     await fetchProducts();
                     syncCategoryOrder();
+                    await saveCategoryOrderSilently();
                     renderCategoriesNav();
                     renderMainView();
                 }
